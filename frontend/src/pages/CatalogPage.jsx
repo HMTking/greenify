@@ -229,7 +229,10 @@ const CatalogPage = () => {
                 <div className="card-image">
                   {plant.image ? (
                     <img
-                      src={`http://localhost:5000/uploads/${plant.image}`}
+                      src={`${import.meta.env.VITE_API_URL.replace(
+                        "/api",
+                        ""
+                      )}/uploads/${plant.image}`}
                       alt={plant.name}
                     />
                   ) : (

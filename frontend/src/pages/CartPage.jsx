@@ -55,7 +55,10 @@ const CartPage = () => {
                   <div className="item-image">
                     {item.plantId.image ? (
                       <img
-                        src={`http://localhost:5000/uploads/${item.plantId.image}`}
+                        src={`${import.meta.env.VITE_API_URL.replace(
+                          "/api",
+                          ""
+                        )}/uploads/${item.plantId.image}`}
                         alt={item.plantId.name}
                       />
                     ) : (
