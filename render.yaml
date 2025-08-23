@@ -1,0 +1,13 @@
+# Render Blueprint YAML for Node backend
+services:
+  - type: web
+    name: mini-plant-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true
+    rootDir: backend
