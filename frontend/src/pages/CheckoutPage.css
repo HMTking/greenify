@@ -62,12 +62,49 @@
 
 .form-input.error {
   border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.form-input:valid:not(:placeholder-shown) {
+  border-color: #22c55e;
+}
+
+.form-input:invalid:not(:placeholder-shown) {
+  border-color: #ef4444;
 }
 
 .form-error {
   color: #ef4444;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.form-help {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.validation-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.validation-icon.valid {
+  color: #22c55e;
+}
+
+.validation-icon.invalid {
+  color: #ef4444;
+}
+
+.form-field-container {
+  position: relative;
 }
 
 .form-row {

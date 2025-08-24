@@ -14,10 +14,21 @@ const CheckoutPage = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  // Watch form values for real-time validation feedback
+  const watchedPhone = watch("phone");
+  const watchedZipCode = watch("zipCode");
+
+  // Helper function to handle numeric input only
+  const handleNumericInput = (e) => {
+    const value = e.target.value.replace(/\D/g, "");
+    return value;
+  };
 
   useEffect(() => {
     if (items.length === 0) {
@@ -39,14 +50,29 @@ const CheckoutPage = () => {
     setLoading(true);
     setError("");
 
+    // Additional validation before submission
+    if (!/^[6-9]\d{9}$/.test(data.phone)) {
+      setError(
+        "Please enter a valid 10-digit Indian mobile number starting with 6-9"
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (!/^[0-9]{6}$/.test(data.zipCode)) {
+      setError("Please enter a valid 6-digit ZIP code");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/orders`,
         {
           deliveryAddress: {
-            street: data.street,
-            city: data.city,
-            state: data.state,
+            street: data.street.trim(),
+            city: data.city.trim(),
+            state: data.state.trim(),
             zipCode: data.zipCode,
             phone: data.phone,
           },
@@ -194,10 +220,19 @@ const CheckoutPage = () => {
                   <label className="form-label">Street Address *</label>
                   <input
                     type="text"
-                    className="form-input"
-                    placeholder="Enter your street address"
+                    className={`form-input ${errors.street ? "error" : ""}`}
+                    placeholder="Enter your complete street address"
                     {...register("street", {
                       required: "Street address is required",
+                      minLength: {
+                        value: 10,
+                        message:
+                          "Street address must be at least 10 characters",
+                      },
+                      maxLength: {
+                        value: 200,
+                        message: "Street address cannot exceed 200 characters",
+                      },
                     })}
                   />
                   {errors.street && (
@@ -216,9 +251,24 @@ const CheckoutPage = () => {
                     <label className="form-label">City *</label>
                     <input
                       type="text"
-                      className="form-input"
+                      className={`form-input ${errors.city ? "error" : ""}`}
                       placeholder="City"
-                      {...register("city", { required: "City is required" })}
+                      {...register("city", {
+                        required: "City is required",
+                        minLength: {
+                          value: 2,
+                          message: "City name must be at least 2 characters",
+                        },
+                        maxLength: {
+                          value: 50,
+                          message: "City name cannot exceed 50 characters",
+                        },
+                        pattern: {
+                          value: /^[a-zA-Z\s]+$/,
+                          message:
+                            "City name can only contain letters and spaces",
+                        },
+                      })}
                     />
                     {errors.city && (
                       <div className="form-error">{errors.city.message}</div>
@@ -229,9 +279,24 @@ const CheckoutPage = () => {
                     <label className="form-label">State *</label>
                     <input
                       type="text"
-                      className="form-input"
+                      className={`form-input ${errors.state ? "error" : ""}`}
                       placeholder="State"
-                      {...register("state", { required: "State is required" })}
+                      {...register("state", {
+                        required: "State is required",
+                        minLength: {
+                          value: 2,
+                          message: "State name must be at least 2 characters",
+                        },
+                        maxLength: {
+                          value: 50,
+                          message: "State name cannot exceed 50 characters",
+                        },
+                        pattern: {
+                          value: /^[a-zA-Z\s]+$/,
+                          message:
+                            "State name can only contain letters and spaces",
+                        },
+                      })}
                     />
                     {errors.state && (
                       <div className="form-error">{errors.state.message}</div>
@@ -250,45 +315,110 @@ const CheckoutPage = () => {
                     <label className="form-label">ZIP Code *</label>
                     <input
                       type="text"
-                      className="form-input"
-                      placeholder="ZIP Code"
+                      className={`form-input ${errors.zipCode ? "error" : ""}`}
+                      placeholder="e.g., 110001"
+                      maxLength="6"
+                      onInput={(e) => {
+                        e.target.value = handleNumericInput(e);
+                      }}
                       {...register("zipCode", {
                         required: "ZIP Code is required",
+                        pattern: {
+                          value: /^[0-9]{6}$/,
+                          message: "ZIP Code must be exactly 6 digits",
+                        },
                       })}
                     />
                     {errors.zipCode && (
                       <div className="form-error">{errors.zipCode.message}</div>
                     )}
+                    {!errors.zipCode &&
+                      watchedZipCode &&
+                      watchedZipCode.length > 0 &&
+                      watchedZipCode.length < 6 && (
+                        <div className="form-help">
+                          ZIP Code should be 6 digits
+                        </div>
+                      )}
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">Phone Number *</label>
                     <input
                       type="tel"
-                      className="form-input"
-                      placeholder="Phone number"
+                      className={`form-input ${errors.phone ? "error" : ""}`}
+                      placeholder="e.g., 9876543210"
+                      maxLength="10"
+                      onInput={(e) => {
+                        e.target.value = handleNumericInput(e);
+                      }}
                       {...register("phone", {
                         required: "Phone number is required",
                         pattern: {
-                          value: /^[0-9+\-\s()]+$/,
-                          message: "Invalid phone number",
+                          value: /^[6-9]\d{9}$/,
+                          message:
+                            "Please enter a valid 10-digit Indian mobile number",
+                        },
+                        minLength: {
+                          value: 10,
+                          message: "Phone number must be exactly 10 digits",
+                        },
+                        maxLength: {
+                          value: 10,
+                          message: "Phone number must be exactly 10 digits",
                         },
                       })}
                     />
                     {errors.phone && (
                       <div className="form-error">{errors.phone.message}</div>
                     )}
+                    {!errors.phone &&
+                      watchedPhone &&
+                      watchedPhone.length > 0 &&
+                      watchedPhone.length < 10 && (
+                        <div className="form-help">
+                          Mobile number should start with 6-9 and be 10 digits
+                        </div>
+                      )}
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   className="btn btn-primary w-full btn-lg"
-                  disabled={loading}
-                  style={{ marginTop: "1rem" }}
+                  disabled={loading || Object.keys(errors).length > 0}
+                  style={{
+                    marginTop: "1rem",
+                    opacity: Object.keys(errors).length > 0 ? 0.6 : 1,
+                  }}
                 >
-                  {loading ? "Placing Order..." : "Place Order (COD)"}
+                  {loading
+                    ? "Placing Order..."
+                    : `Place Order (₹${total} - COD)`}
                 </button>
+
+                {Object.keys(errors).length > 0 && (
+                  <div
+                    style={{
+                      marginTop: "1rem",
+                      padding: "0.75rem",
+                      backgroundColor: "#fef2f2",
+                      border: "1px solid #fecaca",
+                      borderRadius: "6px",
+                      fontSize: "0.9rem",
+                      color: "#dc2626",
+                    }}
+                  >
+                    <strong>Please fix the following errors:</strong>
+                    <ul style={{ margin: "0.5rem 0 0 1rem", padding: 0 }}>
+                      {Object.entries(errors).map(([field, error]) => (
+                        <li key={field} style={{ marginBottom: "0.25rem" }}>
+                          {error.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </form>
             </div>
           </div>

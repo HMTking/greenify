@@ -2,7 +2,7 @@
 
 A fast, responsive plant e-commerce application built with the MERN stack (MongoDB, Express.js, React, Node.js) using Vite and Cloudinary for image management.
 
-## 🚀 Live Demo: [greenify-frontend-seven.vercel.app](https://greenify-frontend-seven.vercel.app/)
+## Deployed: greenify-frontend-seven.vercel.app
 
 ## ✨ Features
 
@@ -47,10 +47,8 @@ A fast, responsive plant e-commerce application built with the MERN stack (Mongo
 
 ## 🌐 Live Demo
 
-🚀 **Live Application**: [https://greenify-frontend-seven.vercel.app/](https://greenify-frontend-seven.vercel.app/)
-
-- **Frontend**: Deployed on Vercel
-- **Backend**: Deployed on Render (auto-connected)
+- **Frontend**: [Deployed on Vercel](https://your-vercel-app.vercel.app)
+- **Backend**: [Deployed on Render](https://your-render-app.onrender.com)
 
 ## 📁 Project Structure
 
