@@ -12,8 +12,7 @@ const plantSchema = new mongoose.Schema({
   plantId: {
     type: String,
     unique: true,
-    sparse: true, // Allow null during creation, but must be unique when present
-    index: true
+    sparse: true // Allow null during creation, but must be unique when present
   },
   name: {
     type: String,
@@ -102,7 +101,6 @@ plantSchema.pre('save', async function(next) {
 
 // Create indexes for search and performance
 plantSchema.index({ name: 'text', description: 'text' });
-plantSchema.index({ plantId: 1 }); // Index for plant ID lookups
 plantSchema.index({ categories: 1 }); // Index for category filtering
 plantSchema.index({ createdAt: -1 }); // Index for sorting by creation date
 

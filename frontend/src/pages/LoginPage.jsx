@@ -2,18 +2,21 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
+import TestCredentials from "../components/TestCredentials";
 import "./AuthPages.css";
 
 const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm();
   const { login, loading, error, isAuthenticated, clearError } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [localError, setLocalError] = useState("");
+  const [showTestCredentials, setShowTestCredentials] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -36,7 +39,7 @@ const LoginPage = () => {
     const result = await login(data.email, data.password);
     if (result.success) {
       setMessage("Login successful!");
-      setTimeout(() => navigate("/"), 1000);
+      // Remove manual navigation - let useEffect handle it when isAuthenticated changes
     } else {
       // Set local error if login fails
       setLocalError(
@@ -47,22 +50,9 @@ const LoginPage = () => {
     }
   };
 
-  const copyToClipboard = async (text, type) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setMessage(`${type} copied to clipboard!`);
-      setTimeout(() => setMessage(""), 2000);
-    } catch (err) {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      setMessage(`${type} copied to clipboard!`);
-      setTimeout(() => setMessage(""), 2000);
-    }
+  const onFillCredentials = (email, password) => {
+    setValue("email", email);
+    setValue("password", password);
   };
 
   return (
@@ -82,68 +72,31 @@ const LoginPage = () => {
             <div className="auth-alert auth-alert-success">{message}</div>
           )}
 
-          <div className="test-credentials">
-            <h4>🔧 Test Login Credentials</h4>
-            <div className="credentials-section">
-              <strong>🔧 Admin Account:</strong>
-              <div className="credential-item">Email: admin@gmail.com</div>
-              <div className="credential-item">Password: AdminPlant@123</div>
-              <button
-                type="button"
-                className="copy-credential-btn"
-                onClick={() =>
-                  copyToClipboard("admin@gmail.com", "Admin email")
-                }
-                title="Copy admin email"
-              >
-                Copy Email
-              </button>
-              <button
-                type="button"
-                className="copy-credential-btn copy-all-btn"
-                onClick={() =>
-                  copyToClipboard(
-                    "Email: admin@gmail.com\nPassword: AdminPlant@123",
-                    "Admin credentials"
-                  )
-                }
-                title="Copy admin email and password"
-              >
-                � Copy All Admin Info
-              </button>
-            </div>
-            <div className="credentials-section">
-              <strong>👤 Customer Account:</strong>
-              <div className="credential-item">Email: customer@gmail.com</div>
-              <div className="credential-item">Password: PlantLover@456</div>
-              <button
-                type="button"
-                className="copy-credential-btn"
-                onClick={() =>
-                  copyToClipboard("customer@gmail.com", "Customer email")
-                }
-                title="Copy customer email"
-              >
-                Copy Email
-              </button>
-              <button
-                type="button"
-                className="copy-credential-btn copy-all-btn"
-                onClick={() =>
-                  copyToClipboard(
-                    "Email: customer@gmail.com\nPassword: PlantLover@456",
-                    "Customer credentials"
-                  )
-                }
-                title="Copy customer email and password"
-              >
-                � Copy All Customer Info
-              </button>
-            </div>
-            <p className="test-note">
-              Note: You can also create your own account via registration
-            </p>
+          {/* Toggle button for test credentials */}
+          <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+            <button
+              type="button"
+              onClick={() => setShowTestCredentials(!showTestCredentials)}
+              className="btn btn-secondary"
+              style={{
+                backgroundColor: showTestCredentials ? "#4f46e5" : "#6b7280",
+                color: "white",
+                padding: "0.5rem 1rem",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "0.875rem",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {showTestCredentials ? "Hide" : "Show"} Test Credentials
+            </button>
           </div>
+
+          {/* Conditional Test Credentials */}
+          {showTestCredentials && (
+            <TestCredentials onFillCredentials={onFillCredentials} />
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
             <div className="auth-form-group">

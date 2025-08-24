@@ -300,6 +300,7 @@ const PlantRow = ({ plant, onEdit, onDelete }) => (
 const AdminPlants = () => {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingPlant, setEditingPlant] = useState(null);
   const [message, setMessage] = useState("");
@@ -342,6 +343,21 @@ const AdminPlants = () => {
     fetchPlants();
   }, [fetchPlants]);
 
+  // Auto-clear global messages after 4 seconds
+  useEffect(() => {
+    if (message && !showForm) {
+      const timer = setTimeout(() => setMessage(""), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, showForm]);
+
+  useEffect(() => {
+    if (error && !showForm) {
+      const timer = setTimeout(() => setError(""), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, showForm]);
+
   // Memoized filtered plants for better performance
   const filteredPlants = useMemo(() => {
     if (!searchTerm) return plants;
@@ -368,9 +384,14 @@ const AdminPlants = () => {
   const onSubmit = useCallback(
     async (data) => {
       try {
+        setSubmitting(true);
+        setError("");
+        setMessage("");
+
         // Validate categories selection
         if (selectedCategories.length === 0) {
           setError("Please select at least one category");
+          setSubmitting(false);
           return;
         }
 
@@ -388,25 +409,68 @@ const AdminPlants = () => {
           formData.append("image", data.image[0]);
         }
 
+        let response;
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        };
+
         if (editingPlant) {
-          await axios.put(
+          response = await axios.put(
             `${import.meta.env.VITE_API_URL}/plants/${editingPlant._id}`,
-            formData
+            formData,
+            config
           );
-          setMessage("Plant updated successfully!");
         } else {
-          await axios.post(`${import.meta.env.VITE_API_URL}/plants`, formData);
-          setMessage("Plant added successfully!");
+          response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/plants`,
+            formData,
+            config
+          );
         }
 
-        fetchPlants();
-        setShowForm(false);
-        setEditingPlant(null);
-        reset();
-        setTimeout(() => setMessage(""), 3000);
+        // Check if response indicates success
+        if (response.data && response.data.success) {
+          const successMsg = editingPlant
+            ? "Plant updated successfully!"
+            : "Plant added successfully!";
+          setMessage(successMsg);
+
+          // Close form after a brief delay to show success message
+          setTimeout(() => {
+            setShowForm(false);
+            setEditingPlant(null);
+            reset();
+            setSelectedCategories([]);
+            fetchPlants(); // Only fetch after successful operation
+            setSubmitting(false);
+          }, 1500);
+        }
       } catch (error) {
-        setError(error.response?.data?.message || "Failed to save plant");
-        setTimeout(() => setError(""), 3000);
+        console.error("Error saving plant:", error);
+        console.error("Error response:", error.response);
+        console.error("Error message:", error.message);
+
+        let errorMessage = "Failed to save plant";
+        if (error.response) {
+          // Server responded with error status
+          errorMessage =
+            error.response.data?.message ||
+            `Server error: ${error.response.status}`;
+        } else if (error.request) {
+          // Request was made but no response received
+          errorMessage =
+            "No response from server. Please check your connection.";
+        } else {
+          // Something else happened
+          errorMessage = error.message || "Unknown error occurred";
+        }
+
+        setError(errorMessage);
+        setSubmitting(false);
       }
     },
     [editingPlant, fetchPlants, reset, selectedCategories]
@@ -468,6 +532,41 @@ const AdminPlants = () => {
 
   return (
     <div className="container" style={{ padding: "2rem 0" }}>
+      {/* Global Success/Error Messages */}
+      {message && !showForm && (
+        <div
+          className="alert alert-success"
+          style={{
+            marginBottom: "2rem",
+            backgroundColor: "#22c55e",
+            color: "white",
+            padding: "1rem",
+            borderRadius: "6px",
+            fontSize: "1rem",
+            fontWeight: "600",
+          }}
+        >
+          ✅ {message}
+        </div>
+      )}
+
+      {error && !showForm && (
+        <div
+          className="alert alert-error"
+          style={{
+            marginBottom: "2rem",
+            backgroundColor: "#ef4444",
+            color: "white",
+            padding: "1rem",
+            borderRadius: "6px",
+            fontSize: "1rem",
+            fontWeight: "600",
+          }}
+        >
+          ❌ {error}
+        </div>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -736,13 +835,28 @@ const AdminPlants = () => {
                 <div
                   style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}
                 >
-                  <button type="submit" className="btn btn-primary">
-                    {editingPlant ? "Update Plant" : "Add Plant"}
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={submitting}
+                    style={{
+                      opacity: submitting ? 0.7 : 1,
+                      cursor: submitting ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {submitting
+                      ? editingPlant
+                        ? "Updating..."
+                        : "Adding..."
+                      : editingPlant
+                      ? "Update Plant"
+                      : "Add Plant"}
                   </button>
                   <button
                     type="button"
                     onClick={resetForm}
                     className="btn btn-secondary"
+                    disabled={submitting}
                   >
                     Cancel
                   </button>
