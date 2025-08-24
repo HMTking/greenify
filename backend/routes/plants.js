@@ -196,14 +196,26 @@ router.put('/:id', auth, admin, upload.single('image'), async (req, res) => {
       plant.image = req.file.path; // Cloudinary returns the full URL in req.file.path
     }
 
+    console.log('Updating plant:', plant.plantId, 'with data:', {
+      name: plant.name,
+      price: plant.price,
+      categories: plant.categories
+    });
+
     await plant.save();
+
+    console.log('Plant updated successfully:', plant.plantId);
 
     res.json({
       success: true,
       plant
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error updating plant:', error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 });
 

@@ -80,6 +80,7 @@ const plantSchema = new mongoose.Schema({
 
 // Auto-generate unique Plant ID before saving
 plantSchema.pre('save', async function(next) {
+  // Only generate Plant ID for new documents that don't have one
   if (this.isNew && !this.plantId) {
     try {
       const counter = await Counter.findByIdAndUpdate(
@@ -91,21 +92,12 @@ plantSchema.pre('save', async function(next) {
       // Generate plant ID in format: PLT-000001, PLT-000002, etc.
       this.plantId = `PLT-${counter.sequence_value.toString().padStart(6, '0')}`;
       console.log(`Generated Plant ID: ${this.plantId} for plant: ${this.name}`);
-      next();
     } catch (error) {
       console.error('Error generating Plant ID:', error);
-      next(error);
+      return next(error);
     }
-  } else {
-    next();
   }
-});
-
-// Validate that plantId exists after save
-plantSchema.post('save', function(doc) {
-  if (!doc.plantId) {
-    throw new Error('Plant ID was not generated properly');
-  }
+  next();
 });
 
 // Create indexes for search and performance
