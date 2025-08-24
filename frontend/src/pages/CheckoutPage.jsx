@@ -118,10 +118,7 @@ const CheckoutPage = () => {
                     >
                       {item.plantId.image ? (
                         <img
-                          src={`${import.meta.env.VITE_API_URL.replace(
-                            "/api",
-                            ""
-                          )}/uploads/${item.plantId.image}`}
+                          src={item.plantId.image}
                           alt={item.plantId.name}
                           style={{
                             maxWidth: "100%",

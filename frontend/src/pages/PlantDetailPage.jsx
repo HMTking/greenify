@@ -155,14 +155,7 @@ const PlantDetailPage = () => {
         <div>
           <div className="plant-image-container">
             {plant.image ? (
-              <img
-                src={`${import.meta.env.VITE_API_URL.replace(
-                  "/api",
-                  ""
-                )}/uploads/${plant.image}`}
-                alt={plant.name}
-                className="plant-image"
-              />
+              <img src={plant.image} alt={plant.name} className="plant-image" />
             ) : (
               <span style={{ fontSize: "6rem" }}>🌱</span>
             )}

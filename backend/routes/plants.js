@@ -1,22 +1,12 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
 const Plant = require('../models/Plant');
 const { auth, admin } = require('../middleware/auth');
+const { storage } = require('../config/cloudinary');
 
 const router = express.Router();
 
-// Multer configuration for image upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Multer configuration for Cloudinary image upload
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
@@ -152,7 +142,7 @@ router.post('/', auth, admin, upload.single('image'), async (req, res) => {
     };
 
     if (req.file) {
-      plantData.image = req.file.filename;
+      plantData.image = req.file.path; // Cloudinary returns the full URL in req.file.path
     }
 
     const plant = new Plant(plantData);
@@ -203,7 +193,7 @@ router.put('/:id', auth, admin, upload.single('image'), async (req, res) => {
     plant.rating = rating ? Number(rating) : plant.rating;
 
     if (req.file) {
-      plant.image = req.file.filename;
+      plant.image = req.file.path; // Cloudinary returns the full URL in req.file.path
     }
 
     await plant.save();

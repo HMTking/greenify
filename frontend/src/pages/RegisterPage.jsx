@@ -19,6 +19,7 @@ const RegisterPage = () => {
   } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const [localError, setLocalError] = useState("");
 
   const password = watch("password");
 
@@ -29,10 +30,16 @@ const RegisterPage = () => {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    clearError();
-  }, []);
+    return () => {
+      clearError();
+    };
+  }, [clearError]);
 
   const onSubmit = async (data) => {
+    // Clear previous messages
+    setMessage("");
+    setLocalError("");
+
     const result = await authRegister(
       data.name,
       data.email,
@@ -42,6 +49,11 @@ const RegisterPage = () => {
     if (result.success) {
       setMessage("Registration successful!");
       setTimeout(() => navigate("/"), 1000);
+    } else {
+      // Set local error if registration fails
+      setLocalError(
+        result.message || error || "Registration failed. Please try again."
+      );
     }
   };
 
@@ -56,7 +68,9 @@ const RegisterPage = () => {
         </div>
 
         <div className="card-body">
-          {error && <div className="alert alert-error">{error}</div>}
+          {(error || localError) && (
+            <div className="alert alert-error">{localError || error}</div>
+          )}
           {message && <div className="alert alert-success">{message}</div>}
 
           <form onSubmit={handleSubmit(onSubmit)}>

@@ -228,13 +228,7 @@ const CatalogPage = () => {
                 {/* Image Section */}
                 <div className="card-image">
                   {plant.image ? (
-                    <img
-                      src={`${import.meta.env.VITE_API_URL.replace(
-                        "/api",
-                        ""
-                      )}/uploads/${plant.image}`}
-                      alt={plant.name}
-                    />
+                    <img src={plant.image} alt={plant.name} />
                   ) : (
                     <span style={{ fontSize: "3rem" }}>🌱</span>
                   )}

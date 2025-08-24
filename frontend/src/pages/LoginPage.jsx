@@ -12,6 +12,7 @@ const LoginPage = () => {
   const { login, loading, error, isAuthenticated, clearError } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const [localError, setLocalError] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -19,15 +20,29 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  // Clear any previous error only when component unmounts or route changes
   useEffect(() => {
-    clearError();
+    return () => {
+      clearError();
+    };
   }, [clearError]);
 
   const onSubmit = async (data) => {
+    // Clear previous messages
+    setMessage("");
+    setLocalError("");
+
     const result = await login(data.email, data.password);
     if (result.success) {
       setMessage("Login successful!");
       setTimeout(() => navigate("/"), 1000);
+    } else {
+      // Set local error if login fails
+      setLocalError(
+        result.message ||
+          error ||
+          "Login failed. Please check your credentials."
+      );
     }
   };
 
@@ -42,7 +57,9 @@ const LoginPage = () => {
         </div>
 
         <div className="card-body">
-          {error && <div className="alert alert-error">{error}</div>}
+          {(error || localError) && (
+            <div className="alert alert-error">{localError || error}</div>
+          )}
           {message && <div className="alert alert-success">{message}</div>}
 
           <div

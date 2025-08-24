@@ -174,9 +174,7 @@ const PlantRow = ({ plant, onEdit, onDelete }) => (
       >
         {plant.image ? (
           <img
-            src={`${import.meta.env.VITE_API_URL.replace("/api", "")}/uploads/${
-              plant.image
-            }`}
+            src={plant.image}
             alt={plant.name}
             style={{
               maxWidth: "100%",

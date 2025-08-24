@@ -54,13 +54,7 @@ const CartPage = () => {
                 <div key={item.plantId._id} className="cart-item">
                   <div className="item-image">
                     {item.plantId.image ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_URL.replace(
-                          "/api",
-                          ""
-                        )}/uploads/${item.plantId.image}`}
-                        alt={item.plantId.name}
-                      />
+                      <img src={item.plantId.image} alt={item.plantId.name} />
                     ) : (
                       <div className="placeholder">🌱</div>
                     )}

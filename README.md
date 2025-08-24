@@ -1,6 +1,6 @@
 # 🌱 Mini Plant Store
 
-A fast, responsive plant e-commerce application built with the MERN stack (MongoDB, Express.js, React, Node.js) using Vite and regular CSS.
+A fast, responsive plant e-commerce application built with the MERN stack (MongoDB, Express.js, React, Node.js) using Vite and Cloudinary for image management.
 
 ## ✨ Features
 
@@ -18,7 +18,7 @@ A fast, responsive plant e-commerce application built with the MERN stack (Mongo
 - Admin dashboard with statistics
 - Plant management (CRUD operations)
 - Order management and status updates
-- Image upload for plants
+- Cloud-based image upload for plants (Cloudinary)
 
 ## 🛠️ Tech Stack
 
@@ -29,6 +29,7 @@ A fast, responsive plant e-commerce application built with the MERN stack (Mongo
 - **Mongoose** - ODM for MongoDB
 - **JWT** - Authentication
 - **Bcrypt** - Password hashing
+- **Cloudinary** - Image storage and optimization
 - **Multer** - File upload handling
 - **CORS** - Cross-Origin Resource Sharing
 
@@ -42,16 +43,20 @@ A fast, responsive plant e-commerce application built with the MERN stack (Mongo
 - **Context API** - State management
 - **Regular CSS** - Styling (no framework)
 
+## 🌐 Live Demo
+
+- **Frontend**: [Deployed on Vercel](https://your-vercel-app.vercel.app)
+- **Backend**: [Deployed on Render](https://your-render-app.onrender.com)
+
 ## 📁 Project Structure
 
 ```
 mini-plant-store/
 ├── backend/
+│   ├── config/           # Configuration files (Cloudinary)
 │   ├── models/           # MongoDB schemas
 │   ├── routes/           # API routes
-│   ├── controllers/      # Route controllers
 │   ├── middleware/       # Auth middleware
-│   ├── uploads/          # Uploaded images
 │   ├── server.js         # Entry point
 │   └── .env              # Environment variables
 └── frontend/
@@ -62,7 +67,7 @@ mini-plant-store/
     │   ├── utils/        # Utility functions
     │   └── App.jsx       # Main app component
     ├── public/           # Static assets
-    └── .env              # Environment variables
+    └── vercel.json       # Vercel deployment config
 ```
 
 ## 🚀 Getting Started
@@ -119,18 +124,39 @@ mini-plant-store/
 
 #### Backend (.env)
 
-\`\`\`
+```
 MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/mini-plant-store
 JWT_SECRET=your_super_secret_jwt_key_here
 NODE_ENV=development
 PORT=5000
-\`\`\`
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+```
 
 #### Frontend (.env)
 
-\`\`\`
+```
 VITE_API_URL=http://localhost:5000/api
-\`\`\`
+```
+
+## 🚀 Deployment
+
+### Backend (Render)
+
+1. Connect your GitHub repository to Render
+2. Set environment variables in Render dashboard
+3. Deploy using the `render.yaml` configuration
+
+### Frontend (Vercel)
+
+1. Connect your GitHub repository to Vercel
+2. Set build command: `npm run build`
+3. Set output directory: `dist`
+4. Deploy using the `vercel.json` configuration
 
 ### Running the Application
 
