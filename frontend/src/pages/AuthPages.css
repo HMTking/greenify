@@ -1,0 +1,389 @@
+.auth-page-container {
+  max-width: 450px;
+  margin: 2rem auto;
+  padding: 1rem;
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  overflow: hidden;
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-card-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-card-header h2 {
+  color: #1e293b;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-card-body {
+  padding: 2rem 1.5rem;
+}
+
+.auth-card-footer {
+  background: #f8fafc;
+  padding: 1.5rem;
+  text-align: center;
+  border-top: 1px solid #e2e8f0;
+}
+
+.auth-card-footer p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.auth-card-footer a {
+  color: #22c55e;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.auth-card-footer a:hover {
+  color: #16a34a;
+  text-decoration: underline;
+}
+
+.test-credentials {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #bfdbfe;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+  /* Allow text selection for copying credentials */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.test-credentials h4 {
+  margin: 0 0 1rem 0;
+  color: #1e40af;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.credentials-section {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  padding-top: 2.5rem; /* Make room for the copy button */
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  /* Allow text selection in credentials sections */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.credentials-section:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.copy-credential-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.copy-credential-btn:hover {
+  background: #2563eb;
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.copy-credential-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-all-btn {
+  background: #10b981;
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.copy-all-btn:hover {
+  background: #059669;
+}
+
+.credentials-section:last-of-type {
+  margin-bottom: 0.75rem;
+}
+
+.credentials-section strong {
+  color: #1e40af;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.credential-item {
+  font-size: 0.875rem;
+  color: #1e40af;
+  margin: 0.25rem 0;
+  line-height: 1.4;
+  /* Allow text selection for easy copying */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+.test-note {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.8rem;
+  color: #3730a3;
+  font-style: italic;
+  text-align: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.auth-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-form-label {
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.auth-form-input {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  color: #1f2937;
+  /* Prevent zoom on iOS */
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.auth-form-input:focus {
+  outline: none;
+  border-color: #22c55e;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  transform: translateY(-1px);
+}
+
+.auth-form-input::placeholder {
+  color: #9ca3af;
+}
+
+.auth-form-error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.auth-submit-btn {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  font-weight: 700;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.auth-alert {
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.auth-alert-error {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  border: 2px solid #fca5a5;
+}
+
+.auth-alert-success {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 2px solid #6ee7b7;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .auth-page-container {
+    margin: 1rem auto;
+    padding: 0.5rem;
+    min-height: calc(100vh - 120px);
+  }
+
+  .auth-card-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-card-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .auth-card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-card-footer {
+    padding: 1rem;
+  }
+
+  .test-credentials {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .test-credentials h4 {
+    font-size: 1rem;
+  }
+
+  .credentials-section {
+    padding: 0.75rem;
+  }
+
+  .auth-form {
+    gap: 1rem;
+  }
+
+  .auth-form-input {
+    padding: 0.75rem;
+    font-size: 16px;
+  }
+
+  .auth-submit-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-page-container {
+    margin: 0.5rem auto;
+    padding: 0.25rem;
+  }
+
+  .auth-card-header {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .auth-card-header h2 {
+    font-size: 1.375rem;
+  }
+
+  .auth-card-body {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .auth-card-footer {
+    padding: 0.875rem;
+  }
+
+  .test-credentials {
+    padding: 0.875rem;
+  }
+
+  .credentials-section {
+    padding: 0.625rem;
+  }
+
+  .credential-item {
+    font-size: 0.8rem;
+  }
+
+  .auth-form-input {
+    padding: 0.625rem;
+  }
+
+  .auth-submit-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+}

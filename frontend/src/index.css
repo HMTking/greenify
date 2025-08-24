@@ -11,13 +11,24 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Mobile-friendly viewport settings */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 a {
   font-weight: 500;
   color: #22c55e;
   text-decoration: inherit;
+  /* Better touch targets */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
+
 a:hover {
   color: #16a34a;
 }
@@ -30,6 +41,9 @@ body {
   min-height: 100vh;
   background-color: #f8fafc;
   color: #1f2937;
+  /* Prevent unwanted selection and highlighting */
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1 {
@@ -49,8 +63,42 @@ button {
   color: #1f2937;
   cursor: pointer;
   transition: border-color 0.25s;
+  /* Better touch targets */
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
+
 button:hover {
   border-color: #22c55e;
   background-color: #f0f9ff;
+}
+
+button:focus {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.5em;
+  }
+  
+  button {
+    padding: 0.75em 1.5em;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2em;
+  }
+  
+  button {
+    padding: 0.65em 1.2em;
+    min-height: 44px;
+  }
 }

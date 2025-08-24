@@ -10,6 +10,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -19,16 +20,57 @@ const Navbar = () => {
       }
     };
 
+    // Close mobile menu on route change
+    const handleRouteChange = () => {
+      setIsMobileMenuOpen(false);
+      setShowProfileDropdown(false);
+    };
+
+    // Close mobile menu on scroll
+    const handleScroll = () => {
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    // Close mobile menu on escape key
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        setShowProfileDropdown(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll);
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isMobileMenuOpen]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
     logout();
     navigate("/");
     setShowProfileDropdown(false);
+    setIsMobileMenuOpen(false);
   };
 
   const isActive = (path) => {
@@ -43,6 +85,14 @@ const Navbar = () => {
     setShowProfileDropdown(false);
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <nav className="navbar">
       <div className="container">
@@ -54,23 +104,44 @@ const Navbar = () => {
                 : "/"
             }
             className="nav-logo"
+            onClick={closeMobileMenu}
           >
             🌱 Mini Plant Store
           </Link>
 
-          <div className="nav-links">
+          {/* Mobile Menu Toggle Button */}
+          <button
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            <span className={`hamburger ${isMobileMenuOpen ? "open" : ""}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+
+          {/* Mobile Overlay */}
+          {isMobileMenuOpen && (
+            <div className="mobile-overlay" onClick={closeMobileMenu} />
+          )}
+
+          <div className={`nav-links ${isMobileMenuOpen ? "mobile-open" : ""}`}>
             {/* Show Home and Catalog only for non-admin users */}
             {(!isAuthenticated || user?.role !== "admin") && (
               <>
                 <Link
                   to="/"
                   className={`nav-link ${isActive("/") ? "active" : ""}`}
+                  onClick={closeMobileMenu}
                 >
                   Home
                 </Link>
                 <Link
                   to="/catalog"
                   className={`nav-link ${isActive("/catalog") ? "active" : ""}`}
+                  onClick={closeMobileMenu}
                 >
                   Catalog
                 </Link>
@@ -86,6 +157,7 @@ const Navbar = () => {
                     className={`nav-link cart-link ${
                       isActive("/cart") ? "active" : ""
                     }`}
+                    onClick={closeMobileMenu}
                   >
                     Cart ({getCartItemsCount()})
                   </Link>
@@ -100,6 +172,7 @@ const Navbar = () => {
                         ? "active"
                         : ""
                     }`}
+                    onClick={closeMobileMenu}
                   >
                     Admin Dashboard
                   </Link>
@@ -109,6 +182,7 @@ const Navbar = () => {
                     className={`nav-link ${
                       isActive("/orders") ? "active" : ""
                     }`}
+                    onClick={closeMobileMenu}
                   >
                     Orders
                   </Link>
@@ -129,7 +203,10 @@ const Navbar = () => {
                       <Link
                         to="/profile"
                         className="dropdown-item"
-                        onClick={closeProfileDropdown}
+                        onClick={() => {
+                          closeProfileDropdown();
+                          closeMobileMenu();
+                        }}
                       >
                         Edit Profile
                       </Link>
@@ -150,10 +227,15 @@ const Navbar = () => {
                   className={`auth-login-btn ${
                     isActive("/login") ? "active" : ""
                   }`}
+                  onClick={closeMobileMenu}
                 >
                   Login
                 </Link>
-                <Link to="/register" className="auth-register-btn">
+                <Link
+                  to="/register"
+                  className="auth-register-btn"
+                  onClick={closeMobileMenu}
+                >
                   Register
                 </Link>
               </div>

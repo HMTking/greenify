@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
+import "./AuthPages.css";
 
 const LoginPage = () => {
   const {
@@ -46,68 +47,110 @@ const LoginPage = () => {
     }
   };
 
+  const copyToClipboard = async (text, type) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setMessage(`${type} copied to clipboard!`);
+      setTimeout(() => setMessage(""), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setMessage(`${type} copied to clipboard!`);
+      setTimeout(() => setMessage(""), 2000);
+    }
+  };
+
   return (
-    <div
-      className="container"
-      style={{ maxWidth: "400px", margin: "4rem auto" }}
-    >
-      <div className="card">
-        <div className="card-header text-center">
+    <div className="auth-page-container">
+      <div className="auth-card">
+        <div className="auth-card-header">
           <h2>Login to Your Account</h2>
         </div>
 
-        <div className="card-body">
+        <div className="auth-card-body">
           {(error || localError) && (
-            <div className="alert alert-error">{localError || error}</div>
-          )}
-          {message && <div className="alert alert-success">{message}</div>}
-
-          <div
-            style={{
-              backgroundColor: "#f0f9ff",
-              border: "1px solid #0ea5e9",
-              padding: "1rem",
-              borderRadius: "8px",
-              marginBottom: "1rem",
-            }}
-          >
-            <h4 style={{ margin: "0 0 0.5rem 0", color: "#0369a1" }}>
-              Test Login Credentials
-            </h4>
-            <div style={{ fontSize: "0.875rem", color: "#0369a1" }}>
-              <div style={{ marginBottom: "0.75rem" }}>
-                <strong>🔧 Admin Account:</strong>
-                <br />
-                Email: admin@gmail.com
-                <br />
-                Password: AdminPlant@123
-              </div>
-              <div>
-                <strong>👤 Customer Account:</strong>
-                <br />
-                Email: customer@gmail.com
-                <br />
-                Password: PlantLover@456
-              </div>
+            <div className="auth-alert auth-alert-error">
+              {localError || error}
             </div>
-            <p
-              style={{
-                margin: "0.75rem 0 0 0",
-                fontSize: "0.75rem",
-                color: "#0369a1",
-                fontStyle: "italic",
-              }}
-            >
+          )}
+          {message && (
+            <div className="auth-alert auth-alert-success">{message}</div>
+          )}
+
+          <div className="test-credentials">
+            <h4>🔧 Test Login Credentials</h4>
+            <div className="credentials-section">
+              <strong>🔧 Admin Account:</strong>
+              <div className="credential-item">Email: admin@gmail.com</div>
+              <div className="credential-item">Password: AdminPlant@123</div>
+              <button
+                type="button"
+                className="copy-credential-btn"
+                onClick={() =>
+                  copyToClipboard("admin@gmail.com", "Admin email")
+                }
+                title="Copy admin email"
+              >
+                Copy Email
+              </button>
+              <button
+                type="button"
+                className="copy-credential-btn copy-all-btn"
+                onClick={() =>
+                  copyToClipboard(
+                    "Email: admin@gmail.com\nPassword: AdminPlant@123",
+                    "Admin credentials"
+                  )
+                }
+                title="Copy admin email and password"
+              >
+                � Copy All Admin Info
+              </button>
+            </div>
+            <div className="credentials-section">
+              <strong>👤 Customer Account:</strong>
+              <div className="credential-item">Email: customer@gmail.com</div>
+              <div className="credential-item">Password: PlantLover@456</div>
+              <button
+                type="button"
+                className="copy-credential-btn"
+                onClick={() =>
+                  copyToClipboard("customer@gmail.com", "Customer email")
+                }
+                title="Copy customer email"
+              >
+                Copy Email
+              </button>
+              <button
+                type="button"
+                className="copy-credential-btn copy-all-btn"
+                onClick={() =>
+                  copyToClipboard(
+                    "Email: customer@gmail.com\nPassword: PlantLover@456",
+                    "Customer credentials"
+                  )
+                }
+                title="Copy customer email and password"
+              >
+                � Copy All Customer Info
+              </button>
+            </div>
+            <p className="test-note">
               Note: You can also create your own account via registration
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-group">
-              <label className="form-label">Email</label>
+          <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+            <div className="auth-form-group">
+              <label className="auth-form-label">Email</label>
               <input
                 type="email"
-                className="form-input"
+                className="auth-form-input"
                 {...register("email", {
                   required: "Email is required",
                   minLength: {
@@ -122,15 +165,15 @@ const LoginPage = () => {
                 placeholder="Enter your email"
               />
               {errors.email && (
-                <div className="form-error">{errors.email.message}</div>
+                <div className="auth-form-error">{errors.email.message}</div>
               )}
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
+            <div className="auth-form-group">
+              <label className="auth-form-label">Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="auth-form-input"
                 {...register("password", {
                   required: "Password is required",
                   minLength: {
@@ -141,13 +184,13 @@ const LoginPage = () => {
                 placeholder="Enter your password"
               />
               {errors.password && (
-                <div className="form-error">{errors.password.message}</div>
+                <div className="auth-form-error">{errors.password.message}</div>
               )}
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary w-full"
+              className="auth-submit-btn"
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
@@ -155,7 +198,7 @@ const LoginPage = () => {
           </form>
         </div>
 
-        <div className="card-footer text-center">
+        <div className="auth-card-footer">
           <p>
             Don't have an account? <Link to="/register">Register here</Link>
           </p>

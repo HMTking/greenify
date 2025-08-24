@@ -13,6 +13,9 @@ html {
   overflow-x: hidden;
   font-size: 16px;
   background-color: #f8fafc;
+  /* Improve text rendering on mobile */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 body {
@@ -27,6 +30,22 @@ body {
   line-height: 1.6;
   color: #1f2937;
   background-color: #f8fafc;
+  /* Prevent zoom on input focus on iOS */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection for specific elements */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 #root {
@@ -98,19 +117,27 @@ body {
   text-align: center;
   box-sizing: border-box;
   white-space: nowrap;
+  /* Improved touch targets for mobile */
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 768px) {
   .btn {
-    padding: 10px 20px;
-    font-size: 14px;
+    padding: 14px 24px;
+    font-size: 16px;
+    min-height: 48px;
+    /* Larger touch targets on mobile */
   }
 }
 
 @media (max-width: 480px) {
   .btn {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 12px 20px;
+    font-size: 15px;
+    min-height: 44px;
     width: auto;
     min-width: auto;
   }
@@ -183,6 +210,9 @@ body {
   border-radius: 6px;
   font-size: 16px;
   transition: border-color 0.3s ease;
+  /* Prevent zoom on focus on iOS */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-input:focus {
@@ -197,6 +227,13 @@ body {
   border-radius: 6px;
   font-size: 16px;
   background-color: white;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 
 .form-textarea {
@@ -207,12 +244,39 @@ body {
   font-size: 16px;
   resize: vertical;
   min-height: 100px;
+  font-family: inherit;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-error {
   color: #ef4444;
   font-size: 14px;
   margin-top: 5px;
+}
+
+/* Mobile form improvements */
+@media (max-width: 768px) {
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+  
+  .form-group {
+    margin-bottom: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 12px;
+    font-size: 16px;
+  }
 }
 
 /* Card Styles */
@@ -446,6 +510,22 @@ body {
     font-size: 1.5rem;
     margin-bottom: 1rem;
   }
+  
+  /* Improve touch scrolling */
+  .main-content {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+  
+  /* Better button spacing on mobile */
+  .btn + .btn {
+    margin-left: 0.5rem;
+  }
+  
+  /* Improve form spacing */
+  .form-group + .form-group {
+    margin-top: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -461,5 +541,75 @@ body {
   .section-title {
     font-size: 1.25rem;
     margin-bottom: 0.75rem;
+  }
+  
+  /* Stack buttons vertically on very small screens */
+  .btn + .btn {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  /* Improve container padding */
+  .container {
+    padding: 0 0.75rem;
+  }
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 768px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+  
+  .mobile-center {
+    text-align: center !important;
+  }
+  
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-show {
+    display: block !important;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* This targets touch devices */
+  
+  .btn:hover {
+    /* Disable hover effects on touch devices */
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card:hover {
+    transform: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Add active states for touch feedback */
+  .btn:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .card:active {
+    transform: scale(0.99);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Improve rendering on high DPI screens */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

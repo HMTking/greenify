@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
+import "./AuthPages.css";
 
 const RegisterPage = () => {
   const {
@@ -58,27 +59,28 @@ const RegisterPage = () => {
   };
 
   return (
-    <div
-      className="container"
-      style={{ maxWidth: "400px", margin: "4rem auto" }}
-    >
-      <div className="card">
-        <div className="card-header text-center">
+    <div className="auth-page-container">
+      <div className="auth-card">
+        <div className="auth-card-header">
           <h2>Create Your Account</h2>
         </div>
 
-        <div className="card-body">
+        <div className="auth-card-body">
           {(error || localError) && (
-            <div className="alert alert-error">{localError || error}</div>
+            <div className="auth-alert auth-alert-error">
+              {localError || error}
+            </div>
           )}
-          {message && <div className="alert alert-success">{message}</div>}
+          {message && (
+            <div className="auth-alert auth-alert-success">{message}</div>
+          )}
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
+          <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+            <div className="auth-form-group">
+              <label className="auth-form-label">Full Name</label>
               <input
                 type="text"
-                className="form-input"
+                className="auth-form-input"
                 {...register("name", {
                   required: "Name is required",
                   minLength: {
@@ -105,24 +107,15 @@ const RegisterPage = () => {
                 placeholder="Enter your full name"
               />
               {errors.name && (
-                <div className="form-error">{errors.name.message}</div>
+                <div className="auth-form-error">{errors.name.message}</div>
               )}
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#666",
-                  marginTop: "0.25rem",
-                }}
-              >
-                2-50 characters, letters and spaces only
-              </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Email</label>
+            <div className="auth-form-group">
+              <label className="auth-form-label">Email</label>
               <input
                 type="email"
-                className="form-input"
+                className="auth-form-input"
                 {...register("email", {
                   required: "Email is required",
                   minLength: {
@@ -150,28 +143,18 @@ const RegisterPage = () => {
                       !/\s/.test(value) || "Email cannot contain spaces",
                   },
                 })}
-                placeholder="Enter your email (e.g., user@example.com)"
+                placeholder="Enter your email"
               />
               {errors.email && (
-                <div className="form-error">{errors.email.message}</div>
+                <div className="auth-form-error">{errors.email.message}</div>
               )}
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#666",
-                  marginTop: "0.25rem",
-                }}
-              >
-                Must be a valid email format with proper domain (e.g.,
-                user@domain.com)
-              </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
+            <div className="auth-form-group">
+              <label className="auth-form-label">Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="auth-form-input"
                 {...register("password", {
                   required: "Password is required",
                   minLength: {
@@ -188,25 +171,15 @@ const RegisterPage = () => {
                 placeholder="Enter your password"
               />
               {errors.password && (
-                <div className="form-error">{errors.password.message}</div>
+                <div className="auth-form-error">{errors.password.message}</div>
               )}
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#666",
-                  marginTop: "0.25rem",
-                }}
-              >
-                Password must be at least 8 characters with 1 uppercase letter
-                and 1 special character
-              </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Confirm Password</label>
+            <div className="auth-form-group">
+              <label className="auth-form-label">Confirm Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="auth-form-input"
                 {...register("confirmPassword", {
                   required: "Please confirm your password",
                   validate: (value) =>
@@ -215,7 +188,7 @@ const RegisterPage = () => {
                 placeholder="Confirm your password"
               />
               {errors.confirmPassword && (
-                <div className="form-error">
+                <div className="auth-form-error">
                   {errors.confirmPassword.message}
                 </div>
               )}
@@ -223,7 +196,7 @@ const RegisterPage = () => {
 
             <button
               type="submit"
-              className="btn btn-primary w-full"
+              className="auth-submit-btn"
               disabled={loading}
             >
               {loading ? "Creating Account..." : "Create Account"}
@@ -231,7 +204,7 @@ const RegisterPage = () => {
           </form>
         </div>
 
-        <div className="card-footer text-center">
+        <div className="auth-card-footer">
           <p>
             Already have an account? <Link to="/login">Login here</Link>
           </p>
