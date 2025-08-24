@@ -2,7 +2,10 @@
 
 A fast, responsive plant e-commerce application built with the MERN stack (MongoDB, Express.js, React, Node.js) using Vite and Cloudinary for image management.
 
-## Deployed: greenify-frontend-seven.vercel.app
+## 🚀 Deployment
+
+The project is live here: [greenify-frontend-seven.vercel.app](https://greenify-frontend-seven.vercel.app)
+
 
 ## ✨ Features
 
@@ -45,10 +48,7 @@ A fast, responsive plant e-commerce application built with the MERN stack (Mongo
 - **Context API** - State management
 - **Regular CSS** - Styling (no framework)
 
-## 🌐 Live Demo
 
-- **Frontend**: [Deployed on Vercel](https://your-vercel-app.vercel.app)
-- **Backend**: [Deployed on Render](https://your-render-app.onrender.com)
 
 ## 📁 Project Structure
 
@@ -145,30 +145,9 @@ CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## 🚀 Deployment
 
-### Backend (Render)
-
-1. Connect your GitHub repository to Render
-2. Set environment variables in Render dashboard
-3. Deploy using the `render.yaml` configuration
-
-### Frontend (Vercel)
-
-1. Connect your GitHub repository to Vercel
-2. Set build command: `npm run build`
-3. Set output directory: `dist`
-4. Deploy using the `vercel.json` configuration
 
 ### Running the Application
-
-**Option 1: Run both servers simultaneously (Recommended)**
-
-```bash
-npm run dev
-```
-
-**Option 2: Run servers separately**
 
 1. **Start the Backend** (Terminal 1)
 
@@ -263,11 +242,6 @@ npm run dev
 - Input validation and sanitization
 - CORS configuration
 
-## 📱 Responsive Breakpoints
-
-- **Desktop**: 1024px and above
-- **Tablet**: 768px - 1023px
-- **Mobile**: Below 768px
 
 ## 👨‍💻 Developer
 
