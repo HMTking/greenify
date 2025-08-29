@@ -90,9 +90,7 @@ plantSchema.pre('save', async function(next) {
       
       // Generate plant ID in format: PLT-000001, PLT-000002, etc.
       this.plantId = `PLT-${counter.sequence_value.toString().padStart(6, '0')}`;
-      console.log(`Generated Plant ID: ${this.plantId} for plant: ${this.name}`);
     } catch (error) {
-      console.error('Error generating Plant ID:', error);
       return next(error);
     }
   }

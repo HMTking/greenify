@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import "./OrdersPage.css";
 
 const OrdersPage = () => {
@@ -77,9 +77,6 @@ const OrdersPage = () => {
   };
 
   const handleItemClick = (item) => {
-    // Debug log to see what we're getting
-    console.log("Item clicked:", item);
-
     // Check if plantId exists (either as populated object or as string)
     let plantId = null;
 
@@ -88,13 +85,11 @@ const OrdersPage = () => {
       if (typeof item.plantId === "object" && item.plantId._id) {
         plantId = item.plantId._id;
       }
-      // If plantId is already a string ID
+      // If plantId is just a string, use it directly
       else if (typeof item.plantId === "string") {
         plantId = item.plantId;
       }
     }
-
-    console.log("Extracted plantId:", plantId);
 
     if (plantId) {
       navigate(`/plant/${plantId}`);
@@ -127,7 +122,7 @@ const OrdersPage = () => {
         <div className="no-orders">
           <h3>No orders found</h3>
           <p>You haven't placed any orders yet.</p>
-          <a href="/catalog" className="btn btn-primary">
+          <a href="/catalogue" className="btn btn-primary">
             Start Shopping
           </a>
         </div>

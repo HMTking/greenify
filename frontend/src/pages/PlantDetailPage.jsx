@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useAuth } from "../hooks/useAuth";
+import { useCart } from "../hooks/useCart";
 import "./PlantDetailPage.css";
 
 const PlantDetailPage = () => {
@@ -130,8 +130,8 @@ const PlantDetailPage = () => {
       >
         <h2>Plant Not Found</h2>
         <p>{error}</p>
-        <Link to="/catalog" className="btn btn-primary">
-          Back to Catalog
+        <Link to="/catalogue" className="btn btn-primary">
+          Back to Catalogue
         </Link>
       </div>
     );
@@ -142,8 +142,8 @@ const PlantDetailPage = () => {
   return (
     <div className="container plant-detail-container">
       <div>
-        <Link to="/catalog" className="back-link">
-          ← Back to Catalog
+        <Link to="/catalogue" className="back-link">
+          ← Back to Catalogue
         </Link>
       </div>
 

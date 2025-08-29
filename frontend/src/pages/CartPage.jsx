@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { useNavigate, Link } from "react-router-dom";
+import { useCart } from "../hooks/useCart";
 import "./CartPage.css";
 
 const CartPage = () => {
@@ -40,7 +40,7 @@ const CartPage = () => {
       {items.length === 0 ? (
         <div className="empty-cart">
           <p>Your cart is empty</p>
-          <Link to="/catalog" className="btn">
+          <Link to="/catalogue" className="btn">
             Continue Shopping
           </Link>
         </div>
@@ -139,7 +139,7 @@ const CartPage = () => {
                 <Link to="/checkout" className="btn primary checkout-btn">
                   Proceed to Checkout
                 </Link>
-                <Link to="/catalog" className="btn secondary continue-btn">
+                <Link to="/catalogue" className="btn secondary continue-btn">
                   Continue Shopping
                 </Link>
               </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useAuth } from "../hooks/useAuth";
+import { useCart } from "../hooks/useCart";
 import "./Navbar.css";
 
 const Navbar = () => {
@@ -128,7 +128,7 @@ const Navbar = () => {
           )}
 
           <div className={`nav-links ${isMobileMenuOpen ? "mobile-open" : ""}`}>
-            {/* Show Home and Catalog only for non-admin users */}
+            {/* Show Home and Catalogue only for non-admin users */}
             {(!isAuthenticated || user?.role !== "admin") && (
               <>
                 <Link
@@ -139,11 +139,13 @@ const Navbar = () => {
                   Home
                 </Link>
                 <Link
-                  to="/catalog"
-                  className={`nav-link ${isActive("/catalog") ? "active" : ""}`}
+                  to="/catalogue"
+                  className={`nav-link ${
+                    isActive("/catalogue") ? "active" : ""
+                  }`}
                   onClick={closeMobileMenu}
                 >
-                  Catalog
+                  Catalogue
                 </Link>
               </>
             )}
@@ -193,9 +195,7 @@ const Navbar = () => {
                     className="profile-button"
                     onClick={toggleProfileDropdown}
                   >
-                    <div className="profile-avatar">
-                      {user?.name ? user.name.charAt(0).toUpperCase() : "👤"}
-                    </div>
+                    <div className="profile-avatar">👤</div>
                   </button>
 
                   {showProfileDropdown && (

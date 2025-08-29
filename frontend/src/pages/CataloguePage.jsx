@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./CataloguePage.css";
 
-const CatalogPage = () => {
+const CataloguePage = () => {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -97,7 +97,7 @@ const CatalogPage = () => {
   };
 
   return (
-    <div className="container catalog-page" style={{ padding: "2rem 0" }}>
+    <div className="container catalogue-page" style={{ padding: "2rem 0" }}>
       <h1 className="page-title">Plant Catalogue</h1>
 
       {/* Filters */}
@@ -300,4 +300,4 @@ const CatalogPage = () => {
   );
 };
 
-export default CatalogPage;
+export default CataloguePage;
