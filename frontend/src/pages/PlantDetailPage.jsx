@@ -78,7 +78,9 @@ const PlantDetailPage = () => {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      navigate("/login");
+      // Store the current page URL as a query parameter for redirect after login
+      const currentPath = window.location.pathname;
+      navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
 

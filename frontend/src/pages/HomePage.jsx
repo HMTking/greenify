@@ -10,7 +10,7 @@ const HomePage = () => {
           <div className="hero-content">
             <h1>Welcome to Mini Plant Store</h1>
             <p>Discover beautiful plants to brighten your home and garden</p>
-            <Link to="/catalog" className="btn btn-primary btn-lg">
+            <Link to="/catalogue" className="btn btn-primary btn-lg">
               Shop Plants
             </Link>
           </div>
@@ -55,19 +55,19 @@ const HomePage = () => {
         <div className="container">
           <h2 className="section-title text-center">Shop by Category</h2>
           <div className="grid grid-cols-4">
-            <Link to="/catalog?category=Indoor" className="category-card">
+            <Link to="/catalogue?category=Indoor" className="category-card">
               <div className="category-icon">🏠</div>
               <h3>Indoor Plants</h3>
             </Link>
-            <Link to="/catalog?category=Outdoor" className="category-card">
+            <Link to="/catalogue?category=Outdoor" className="category-card">
               <div className="category-icon">🌳</div>
               <h3>Outdoor Plants</h3>
             </Link>
-            <Link to="/catalog?category=Succulents" className="category-card">
+            <Link to="/catalogue?category=Succulents" className="category-card">
               <div className="category-icon">🌵</div>
               <h3>Succulents</h3>
             </Link>
-            <Link to="/catalog?category=Flowering" className="category-card">
+            <Link to="/catalogue?category=Flowering" className="category-card">
               <div className="category-icon">🌸</div>
               <h3>Flowering Plants</h3>
             </Link>

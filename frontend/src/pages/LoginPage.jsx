@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
 import TestCredentials from "../components/TestCredentials";
@@ -14,15 +14,20 @@ const LoginPage = () => {
   } = useForm();
   const { login, loading, error, isAuthenticated, clearError } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [message, setMessage] = useState("");
   const [localError, setLocalError] = useState("");
   const [showTestCredentials, setShowTestCredentials] = useState(false);
 
+  // Get redirect parameter from URL
+  const redirectTo = searchParams.get("redirect") || "/";
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      // Redirect to the original page or home page
+      navigate(redirectTo);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, redirectTo]);
 
   // Clear any previous error only when component unmounts or route changes
   useEffect(() => {

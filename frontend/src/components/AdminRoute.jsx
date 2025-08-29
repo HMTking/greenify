@@ -1,8 +1,9 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -13,7 +14,11 @@ const AdminRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    // If not authenticated, redirect to login with current path as redirect parameter
+    const redirectPath = `/login?redirect=${encodeURIComponent(
+      location.pathname
+    )}`;
+    return <Navigate to={redirectPath} />;
   }
 
   if (user?.role !== "admin") {
