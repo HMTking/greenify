@@ -1,3 +1,5 @@
+// Shopping cart API routes for managing user cart operations
+// Handles adding/removing items, updating quantities and cart retrieval
 const express = require('express');
 const Cart = require('../models/Cart');
 const Plant = require('../models/Plant');

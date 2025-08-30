@@ -1,3 +1,5 @@
+// Redux slice for authentication state management
+// Handles login, register, user loading and profile updates with async thunks
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 

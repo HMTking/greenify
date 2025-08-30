@@ -1,3 +1,5 @@
+// Main navigation bar component with responsive design and user authentication
+// Handles different navigation options for admin/regular users and mobile menu toggle
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";

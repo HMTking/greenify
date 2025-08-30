@@ -1,3 +1,5 @@
+// User profile management page with personal info and password change
+// Allows users to update their account details and change passwords
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";

@@ -1,3 +1,5 @@
+// User mongoose model with authentication and profile management
+// Defines user schema with password hashing and comparison methods
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

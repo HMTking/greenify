@@ -1,3 +1,5 @@
+// Cloudinary configuration for image upload and storage management
+// Sets up cloud storage with image transformation and upload parameters
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 

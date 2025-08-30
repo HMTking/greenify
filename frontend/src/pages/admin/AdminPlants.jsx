@@ -1,3 +1,5 @@
+// Admin plant management page for CRUD operations on plant inventory
+// Handles adding, editing, deleting plants with image upload and form validation
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -264,17 +266,76 @@ const PlantRow = ({ plant, onEdit, onDelete }) => (
     </td>
     <td style={{ padding: "1rem" }}>
       <div>
-        {[...Array(5)].map((_, i) => (
-          <span
-            key={i}
-            style={{
-              color: i < plant.rating ? "#fbbf24" : "#d1d5db",
-              fontSize: "0.875rem",
-            }}
-          >
-            ⭐
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div style={{ display: "flex", gap: "0.125rem" }}>
+            {(() => {
+              const rating = plant.rating || 0;
+              const stars = [];
+              const fullStars = Math.floor(rating);
+              const hasHalfStar = rating % 1 !== 0;
+
+              // Full stars
+              for (let i = 0; i < fullStars; i++) {
+                stars.push(
+                  <span
+                    key={i}
+                    style={{ color: "#fbbf24", fontSize: "0.875rem" }}
+                  >
+                    ★
+                  </span>
+                );
+              }
+
+              // Half star
+              if (hasHalfStar) {
+                stars.push(
+                  <span
+                    key="half"
+                    style={{
+                      position: "relative",
+                      fontSize: "0.875rem",
+                      color: "#d1d5db",
+                    }}
+                  >
+                    ★
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        color: "#fbbf24",
+                        overflow: "hidden",
+                        width: "50%",
+                      }}
+                    >
+                      ★
+                    </span>
+                  </span>
+                );
+              }
+
+              // Empty stars
+              const emptyStars = 5 - Math.ceil(rating);
+              for (let i = 0; i < emptyStars; i++) {
+                stars.push(
+                  <span
+                    key={`empty-${i}`}
+                    style={{ color: "#d1d5db", fontSize: "0.875rem" }}
+                  >
+                    ☆
+                  </span>
+                );
+              }
+
+              return stars;
+            })()}
+          </div>
+          <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+            {plant.reviewCount > 0
+              ? `${plant.rating} out of 5 (${plant.reviewCount})`
+              : "No reviews"}
           </span>
-        ))}
+        </div>
       </div>
     </td>
     <td style={{ padding: "1rem", textAlign: "center" }}>
@@ -403,7 +464,6 @@ const AdminPlants = () => {
           formData.append("originalPrice", data.originalPrice);
         formData.append("categories", selectedCategories.join(", "));
         formData.append("stock", data.stock);
-        formData.append("rating", data.rating);
 
         if (data.image && data.image[0]) {
           formData.append("image", data.image[0]);
@@ -485,7 +545,6 @@ const AdminPlants = () => {
       setValue("price", plant.price);
       setValue("originalPrice", plant.originalPrice);
       setValue("stock", plant.stock);
-      setValue("rating", plant.rating);
       setShowForm(true);
     },
     [setValue]
@@ -784,39 +843,20 @@ const AdminPlants = () => {
                   )}
                 </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "1rem",
-                  }}
-                >
-                  <div className="form-group">
-                    <label className="form-label">Stock Quantity *</label>
-                    <input
-                      type="number"
-                      min="0"
-                      className="form-input"
-                      {...register("stock", {
-                        required: "Stock quantity is required",
-                        min: 0,
-                      })}
-                    />
-                    {errors.stock && (
-                      <div className="form-error">{errors.stock.message}</div>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Rating (1-5)</label>
-                    <select className="form-select" {...register("rating")}>
-                      <option value="5">5 Stars</option>
-                      <option value="4">4 Stars</option>
-                      <option value="3">3 Stars</option>
-                      <option value="2">2 Stars</option>
-                      <option value="1">1 Star</option>
-                    </select>
-                  </div>
+                <div className="form-group">
+                  <label className="form-label">Stock Quantity *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="form-input"
+                    {...register("stock", {
+                      required: "Stock quantity is required",
+                      min: 0,
+                    })}
+                  />
+                  {errors.stock && (
+                    <div className="form-error">{errors.stock.message}</div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -904,6 +944,16 @@ const AdminPlants = () => {
                       </th>
                       <th style={{ padding: "1rem", textAlign: "left" }}>
                         Rating
+                        <div
+                          style={{
+                            fontSize: "0.75rem",
+                            fontWeight: "normal",
+                            color: "#6b7280",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          Customer Reviews
+                        </div>
                       </th>
                       <th style={{ padding: "1rem", textAlign: "center" }}>
                         Actions

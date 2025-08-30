@@ -1,3 +1,5 @@
+// Redux store configuration combining auth and cart reducers
+// Central state management setup for the entire application
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';

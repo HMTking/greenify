@@ -1,5 +1,9 @@
+// Component that redirects admin users to admin dashboard
+// Prevents admin users from accessing regular user pages
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+// useAuth is custom Hook
 import { useAuth } from "../hooks/useAuth";
 
 const AdminRedirect = ({ children }) => {
@@ -13,10 +17,15 @@ const AdminRedirect = ({ children }) => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // If user is admin, don't render the children (they'll be redirected)
   if (isAuthenticated && user?.role === "admin") {
     return null;
   }
+
+  // replace: true → Redirect doesn’t leave the restricted page in browser history.
+
+  // [isAuthenticated, user, navigate] → Effect re-runs whenever login state or user info changes.
+
+  // if (isAuthenticated && user?.role === "admin") → Blocks rendering restricted content for admins (page stays blank until redirect completes).
 
   // Render children for non-admin users
   return children;

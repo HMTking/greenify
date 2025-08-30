@@ -1,3 +1,4 @@
+// Plant catalogue page with search, filter and add-to-cart functionality
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./CataloguePage.css";
@@ -18,6 +19,7 @@ const CataloguePage = () => {
     fetchPlants();
     fetchCategories();
   }, [search, category, minPrice, maxPrice, minRating, sortBy, sortOrder]);
+  //If any one of these values changes, React will re-run the useEffect function.
 
   const fetchPlants = async () => {
     try {
@@ -244,14 +246,19 @@ const CataloguePage = () => {
 
                   {/* Rating Section */}
                   <div className="card-rating">
-                    {plant.rating && (
+                    {plant.reviewCount > 0 ? (
                       <>
                         <div className="stars">{renderStars(plant.rating)}</div>
                         <span className="rating-text">
-                          {plant.rating.toFixed(1)} ({plant.reviewCount || 0}{" "}
+                          {plant.rating.toFixed(1)} ({plant.reviewCount}{" "}
                           reviews)
                         </span>
                       </>
+                    ) : (
+                      <div className="no-reviews">
+                        <div className="stars">{renderStars(0)}</div>
+                        <span className="rating-text">No reviews yet</span>
+                      </div>
                     )}
                   </div>
 

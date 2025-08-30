@@ -1,3 +1,5 @@
+// Order management API routes for creating and tracking customer orders
+// Handles order placement, status updates, and admin order management functionality
 const express = require('express');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');

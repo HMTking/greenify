@@ -1,3 +1,5 @@
+// User registration page with form validation and account creation
+// Handles new user signup with name, email, password and role selection
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";

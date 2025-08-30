@@ -1,3 +1,5 @@
+// Protected route component that requires user authentication
+// Redirects unauthenticated users to login page with return path
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 

@@ -1,3 +1,5 @@
+// Admin orders management page for viewing and updating order status
+// Displays all orders with filtering, status updates and customer details
 import { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 

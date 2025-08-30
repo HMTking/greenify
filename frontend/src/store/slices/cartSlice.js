@@ -1,3 +1,5 @@
+// Redux slice for shopping cart state management
+// Handles cart operations, item updates and optimistic UI updates
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 

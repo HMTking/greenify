@@ -1,3 +1,5 @@
+// Order mongoose model for managing customer orders and order tracking
+// Defines order schema with customer details, items, delivery address and status
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -39,6 +41,10 @@ const orderSchema = new mongoose.Schema({
         },
         message: 'Item price must be an integer (no decimal places allowed)'
       }
+    },
+    rated: {
+      type: Boolean,
+      default: false
     }
   }],
   deliveryAddress: {

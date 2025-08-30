@@ -1,3 +1,5 @@
+// User login page with form validation and test credentials
+// Handles user authentication and redirects based on user role
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";

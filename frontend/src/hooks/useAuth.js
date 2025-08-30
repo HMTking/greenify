@@ -1,4 +1,23 @@
-import { useEffect, useRef } from 'react';
+// Custom hook for managing user authentication state and operations
+// Handles login, register, logout, profile updates and axios token management
+
+// it returns object containing
+// {
+//   isAuthenticated,   // Boolean → true if user is logged in
+//   user,              // User object (with fields like name, email, role, etc.)
+//   token,             // JWT or session token
+//   loading,           // Boolean → true if auth request is in progress
+//   error,             // Error message (if any)
+
+//   // Functions
+//   login,             // Function to log in a user
+//   register,          // Function to register a user
+//   logout: logoutUser,// Function to log out
+//   updateProfile,     // Function to update user profile
+//   clearError: clearAuthError, // Function to clear errors
+// }
+
+import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import {
@@ -37,48 +56,49 @@ export const useAuth = () => {
     }
   }, [dispatch, token]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     dispatch(setLoading(true));
     dispatch(clearError());
 
     try {
-      const result = await dispatch(loginUser({ email, password })).unwrap();
+      await dispatch(loginUser({ email, password })).unwrap();
       return { success: true };
     } catch (error) {
       return { success: false, message: error };
     }
-  };
+  }, [dispatch]);
 
-  const register = async (name, email, password, role = "customer") => {
+  const register = useCallback(async (name, email, password, role = "customer") => {
     dispatch(setLoading(true));
     dispatch(clearError());
 
     try {
-      const result = await dispatch(registerUser({ name, email, password, role })).unwrap();
+      await dispatch(registerUser({ name, email, password, role })).unwrap();
       return { success: true };
     } catch (error) {
       return { success: false, message: error };
     }
-  };
+  }, [dispatch]);
 
-  const logoutUser = () => {
+  const logoutUser = useCallback(() => {
     dispatch(logout());
-  };
+  }, [dispatch]);
 
-  const updateProfile = async (userData) => {
+  const updateProfile = useCallback(async (userData) => {
     try {
       await dispatch(updateUserProfile(userData)).unwrap();
       return { success: true };
     } catch (error) {
       return { success: false, message: error };
     }
-  };
+  }, [dispatch]);
 
-  const clearAuthError = () => {
+  const clearAuthError = useCallback(() => {
     dispatch(clearError());
-  };
+  }, [dispatch]);
 
-  return {
+  // Memoize the return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     isAuthenticated,
     user,
     token,
@@ -89,5 +109,16 @@ export const useAuth = () => {
     logout: logoutUser,
     updateProfile,
     clearError: clearAuthError,
-  };
+  }), [
+    isAuthenticated,
+    user,
+    token,
+    loading,
+    error,
+    login,
+    register,
+    logoutUser,
+    updateProfile,
+    clearAuthError
+  ]);
 };

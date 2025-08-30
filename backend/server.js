@@ -1,3 +1,5 @@
+// Main Express server file that sets up API routes and database connections
+// Configures middleware, MongoDB connection and starts the server
 const express = require('express');
 const mongoose = require('mongoose');
 // CORS (cross origin resource sharing) allows your frontend running on a different port/domain to make requests to your backend API.
@@ -29,6 +31,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/plants', require('./routes/plants'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/ratings', require('./routes/ratings'));
 
 // Basic route
 app.get('/', (req, res) => {

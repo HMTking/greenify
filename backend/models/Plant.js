@@ -1,3 +1,5 @@
+// Plant mongoose model with auto-incrementing IDs and inventory management
+// Defines plant schema with validation, pricing, stock and search indexing
 const mongoose = require('mongoose');
 
 // Auto-increment counter schema for plant IDs
@@ -60,9 +62,9 @@ const plantSchema = new mongoose.Schema({
   },
   rating: {
     type: Number,
-    min: 1,
+    min: 0,
     max: 5,
-    default: 5
+    default: 0
   },
   reviewCount: {
     type: Number,

@@ -1,3 +1,5 @@
+// Authentication middleware for JWT token verification and user authorization
+// Provides auth and admin middleware functions for protecting API routes
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 

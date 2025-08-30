@@ -1,3 +1,5 @@
+// Footer component displaying copyright information and developer details
+// Contains social media links and contact information for the developer
 import "./Footer.css";
 
 const Footer = () => {

@@ -1,3 +1,5 @@
+// Admin dashboard displaying key metrics and system overview
+// Shows statistics for plants, orders, users and provides quick action buttons
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";

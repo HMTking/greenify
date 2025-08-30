@@ -1,3 +1,4 @@
+// BrowserRouter/Router = map; Routes = list of roads; Route = a single road
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store";
@@ -17,7 +18,7 @@ import AdminPlants from "./pages/admin/AdminPlants";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminRoute from "./components/AdminRoute";
 import PrivateRoute from "./components/PrivateRoute";
-import AdminRedirect from "./components/AdminRedirect";
+import AdminRedirect from "./components/AdminRedirect"; //prevent Admin Access
 import "./App.css";
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
                   </AdminRedirect>
                 }
               />
+
               <Route
                 path="/catalogue"
                 element={

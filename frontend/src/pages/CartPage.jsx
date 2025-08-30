@@ -1,3 +1,5 @@
+// Shopping cart page displaying cart items with quantity controls
+// Allows users to update quantities, remove items and proceed to checkout
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../hooks/useCart";

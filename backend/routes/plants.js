@@ -1,3 +1,5 @@
+// Plant management API routes for CRUD operations and plant catalog
+// Handles plant creation, updates, deletion with image upload and search functionality
 const express = require('express');
 const multer = require('multer');
 const Plant = require('../models/Plant');
@@ -119,7 +121,7 @@ router.get('/:id', async (req, res) => {
 // @access Private/Admin
 router.post('/', auth, admin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, originalPrice, categories, stock, rating } = req.body;
+    const { name, description, price, originalPrice, categories, stock } = req.body;
 
     // Parse categories - handle comma-separated string or array
     let parsedCategories = [];
@@ -138,7 +140,8 @@ router.post('/', auth, admin, upload.single('image'), async (req, res) => {
       originalPrice: originalPrice ? Math.floor(Number(originalPrice)) : undefined,
       categories: parsedCategories,
       stock: Number(stock),
-      rating: rating ? Number(rating) : 5
+      rating: 0, // Default rating, will be calculated from customer reviews
+      reviewCount: 0
     };
 
     if (req.file) {
@@ -146,11 +149,8 @@ router.post('/', auth, admin, upload.single('image'), async (req, res) => {
     }
 
     const plant = new Plant(plantData);
-    console.log('Creating plant with data:', plantData);
-    console.log('Plant before save:', plant);
     
     await plant.save();
-    console.log('Plant after save:', plant);
 
     res.status(201).json({
       success: true,
@@ -172,7 +172,7 @@ router.put('/:id', auth, admin, upload.single('image'), async (req, res) => {
       return res.status(404).json({ message: 'Plant not found' });
     }
 
-    const { name, description, price, originalPrice, categories, stock, rating } = req.body;
+    const { name, description, price, originalPrice, categories, stock } = req.body;
 
     // Parse categories - handle comma-separated string or array
     let parsedCategories = plant.categories; // Keep existing if not provided
@@ -190,21 +190,13 @@ router.put('/:id', auth, admin, upload.single('image'), async (req, res) => {
     plant.originalPrice = originalPrice ? Math.floor(Number(originalPrice)) : plant.originalPrice;
     plant.categories = parsedCategories;
     plant.stock = stock !== undefined ? Number(stock) : plant.stock;
-    plant.rating = rating ? Number(rating) : plant.rating;
+    // Note: Rating is no longer updated by admin, it's calculated from customer reviews
 
     if (req.file) {
       plant.image = req.file.path; // Cloudinary returns the full URL in req.file.path
     }
 
-    console.log('Updating plant:', plant.plantId, 'with data:', {
-      name: plant.name,
-      price: plant.price,
-      categories: plant.categories
-    });
-
     await plant.save();
-
-    console.log('Plant updated successfully:', plant.plantId);
 
     res.json({
       success: true,

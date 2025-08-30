@@ -1,3 +1,5 @@
+// Shopping cart mongoose model for storing user cart items
+// Defines cart schema with user reference and plant items with quantities
 const mongoose = require('mongoose');
 
 const cartSchema = new mongoose.Schema({

@@ -1,3 +1,5 @@
+// Individual plant details page with images, specifications and add to cart
+// Shows detailed plant information, care instructions and purchase options
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -202,17 +204,86 @@ const PlantDetailPage = () => {
 
           {/* Rating */}
           <div className="rating-section">
-            <div className="stars">
-              {[...Array(5)].map((_, i) => (
-                <span
-                  key={i}
-                  style={{ color: i < plant.rating ? "#fbbf24" : "#d1d5db" }}
-                >
-                  ⭐
-                </span>
-              ))}
+            <div
+              className="stars"
+              style={{ display: "flex", alignItems: "center", gap: "0.125rem" }}
+            >
+              {(() => {
+                const rating = plant.rating || 0;
+                const stars = [];
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 !== 0;
+
+                // Full stars
+                for (let i = 0; i < fullStars; i++) {
+                  stars.push(
+                    <span
+                      key={i}
+                      style={{ color: "#fbbf24", fontSize: "1.25rem" }}
+                    >
+                      ★
+                    </span>
+                  );
+                }
+
+                // Half star
+                if (hasHalfStar) {
+                  stars.push(
+                    <span
+                      key="half"
+                      style={{
+                        position: "relative",
+                        fontSize: "1.25rem",
+                        color: "#d1d5db",
+                      }}
+                    >
+                      ★
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          color: "#fbbf24",
+                          overflow: "hidden",
+                          width: "50%",
+                        }}
+                      >
+                        ★
+                      </span>
+                    </span>
+                  );
+                }
+
+                // Empty stars
+                const emptyStars = 5 - Math.ceil(rating);
+                for (let i = 0; i < emptyStars; i++) {
+                  stars.push(
+                    <span
+                      key={`empty-${i}`}
+                      style={{ color: "#d1d5db", fontSize: "1.25rem" }}
+                    >
+                      ☆
+                    </span>
+                  );
+                }
+
+                return stars;
+              })()}
             </div>
-            <span className="rating-text">({plant.rating}/5)</span>
+            <span
+              className="rating-text"
+              style={{
+                marginLeft: "0.5rem",
+                fontSize: "0.875rem",
+                color: "#6b7280",
+              }}
+            >
+              {plant.reviewCount > 0
+                ? `${plant.rating} out of 5 (${plant.reviewCount} review${
+                    plant.reviewCount !== 1 ? "s" : ""
+                  })`
+                : "No reviews yet"}
+            </span>
           </div>
 
           {/* Stock Status */}

@@ -1,3 +1,5 @@
+// Protected route component that restricts access to admin users only
+// Redirects non-admin users to home page or login if not authenticated
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 

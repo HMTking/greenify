@@ -1,3 +1,5 @@
+// Component displaying test login credentials for demo purposes
+// Provides quick access to admin and customer test accounts with auto-fill functionality
 import { useState } from "react";
 
 const TestCredentials = ({ onFillCredentials }) => {

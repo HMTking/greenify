@@ -1,3 +1,5 @@
+// Reusable loading skeleton component for different UI elements
+// Provides animated placeholders while content is loading (table rows, cards, etc.)
 import React from "react";
 
 const LoadingSkeleton = ({ type = "default", count = 1 }) => {

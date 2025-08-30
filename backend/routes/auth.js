@@ -1,3 +1,5 @@
+// Authentication API routes for user registration, login and profile management
+// Handles JWT token generation, user authentication and password updates
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
