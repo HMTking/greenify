@@ -1,7 +1,7 @@
 // Admin orders management page for viewing and updating order status
 // Displays all orders with filtering, status updates and customer details
 import { useState, useEffect, useCallback, useMemo } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 
 // Memoized Order Card Component
 const OrderCard = ({
@@ -209,14 +209,11 @@ const AdminOrders = () => {
   const fetchAllOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/orders/admin/all`,
-        {
-          headers: {
-            "Cache-Control": "max-age=30", // Cache for 30 seconds
-          },
-        }
-      );
+      const response = await api.get(`/orders/admin/all`, {
+        headers: {
+          "Cache-Control": "max-age=30", // Cache for 30 seconds
+        },
+      });
       setAllOrders(response.data.orders);
     } catch (error) {
       setError("Failed to fetch orders");
@@ -239,12 +236,9 @@ const AdminOrders = () => {
 
   const updateOrderStatus = useCallback(async (orderId, newStatus) => {
     try {
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/orders/${orderId}/status`,
-        {
-          status: newStatus,
-        }
-      );
+      await api.put(`/orders/${orderId}/status`, {
+        status: newStatus,
+      });
 
       setMessage("Order status updated successfully!");
 

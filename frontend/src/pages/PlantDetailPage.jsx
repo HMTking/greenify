@@ -2,7 +2,7 @@
 // Shows detailed plant information, care instructions and purchase options
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../hooks/useCart";
 import "./PlantDetailPage.css";
@@ -50,9 +50,7 @@ const PlantDetailPage = () => {
   const fetchPlant = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/plants/${id}`
-      );
+      const response = await api.get(`/plants/${id}`);
       setPlant(response.data.plant);
     } catch (error) {
       setError("Plant not found");

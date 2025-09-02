@@ -2,7 +2,7 @@
 // Shows statistics for plants, orders, users and provides quick action buttons
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 
 // Memoized components to prevent unnecessary re-renders
 const StatCard = ({ icon, value, label, color }) => (
@@ -48,8 +48,8 @@ const AdminDashboard = () => {
 
       // Use Promise.all for concurrent requests instead of sequential
       const [plantsStatsResponse, ordersResponse] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_API_URL}/plants/stats/count`), // Use dedicated stats endpoint
-        axios.get(`${import.meta.env.VITE_API_URL}/orders/admin/stats`),
+        api.get(`/plants/stats/count`), // Use dedicated stats endpoint
+        api.get(`/orders/admin/stats`),
       ]);
 
       // Use the stats from the dedicated endpoint

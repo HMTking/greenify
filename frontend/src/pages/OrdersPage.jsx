@@ -2,7 +2,7 @@
 // Shows past orders with items purchased and order tracking information
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../hooks/useAuth";
 import "./OrdersPage.css";
 
@@ -118,8 +118,8 @@ const RatingModal = ({
       }
 
       const token = localStorage.getItem("token");
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/ratings`,
+      await api.post(
+        `/ratings`,
         {
           plantId,
           orderId,
@@ -416,15 +416,7 @@ const OrdersPage = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/orders`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/orders`);
       setOrders(response.data.orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -456,16 +448,7 @@ const OrdersPage = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/orders/${orderId}/cancel`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.put(`/orders/${orderId}/cancel`);
       showToastNotification("Order cancelled successfully");
       fetchOrders(); // Refresh orders
     } catch (error) {
@@ -511,16 +494,8 @@ const OrdersPage = () => {
       }
 
       // Load existing rating data
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${
-          import.meta.env.VITE_API_URL
-        }/ratings/user/existing/${orderId}/${plantId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.get(
+        `/ratings/user/existing/${orderId}/${plantId}`
       );
 
       // Set the existing rating data for editing

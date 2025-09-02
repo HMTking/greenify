@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
-import axios from "axios";
+import api from "../utils/api";
 
 const CheckoutPage = () => {
   const { items, total, clearCart } = useCart();
@@ -68,18 +68,15 @@ const CheckoutPage = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/orders`,
-        {
-          deliveryAddress: {
-            street: data.street.trim(),
-            city: data.city.trim(),
-            state: data.state.trim(),
-            zipCode: data.zipCode,
-            phone: data.phone,
-          },
-        }
-      );
+      const response = await api.post(`/orders`, {
+        deliveryAddress: {
+          street: data.street.trim(),
+          city: data.city.trim(),
+          state: data.state.trim(),
+          zipCode: data.zipCode,
+          phone: data.phone,
+        },
+      });
 
       if (response.data.success) {
         setMessage("Order placed successfully!");

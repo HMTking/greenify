@@ -1,11 +1,17 @@
-# 🌱 Mini Plant Store
+# 🌱 Greenify - Plant E-commerce Platform
 
-A fast, responsive plant e-commerce application built with the MERN stack (MongoDB, Express.js, React, Node.js) using Vite and Cloudinary for image management.
+A modern, full-stack plant e-commerce platform with user authentication, shopping cart, admin panel, and AI plant care assistant. Built with the MERN stack and deployment-ready for production.
 
-## 🚀 Deployment
+## 🚀 Live Deployment
+
+**Status**: ✅ Production Ready
+
+- **Frontend**: Vercel deployment configured
+- **Backend**: Render deployment configured
+- **Database**: MongoDB Atlas compatible
+- **Storage**: Cloudinary integration
 
 The project is live here: [greenify-frontend-seven.vercel.app](https://greenify-frontend-seven.vercel.app)
-
 
 ## ✨ Features
 
@@ -47,8 +53,6 @@ The project is live here: [greenify-frontend-seven.vercel.app](https://greenify-
 - **Axios** - HTTP client
 - **Context API** - State management
 - **Regular CSS** - Styling (no framework)
-
-
 
 ## 📁 Project Structure
 
@@ -145,8 +149,6 @@ CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 VITE_API_URL=http://localhost:5000/api
 ```
 
-
-
 ### Running the Application
 
 1. **Start the Backend** (Terminal 1)
@@ -241,7 +243,6 @@ VITE_API_URL=http://localhost:5000/api
 - Protected routes (Private/Admin)
 - Input validation and sanitization
 - CORS configuration
-
 
 ## 👨‍💻 Developer
 

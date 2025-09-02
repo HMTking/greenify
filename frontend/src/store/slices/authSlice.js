@@ -1,18 +1,18 @@
 // Redux slice for authentication state management
 // Handles login, register, user loading and profile updates with async thunks
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../../utils/api';
 
 // Async thunks for auth operations
 export const loadUser = createAsyncThunk(
   'auth/loadUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/auth/me');
+      const response = await api.get('/auth/me');
       return response.data.user;
     } catch (error) {
       localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+      delete api.defaults.headers.common["Authorization"];
       return rejectWithValue('Token invalid');
     }
   }
@@ -22,7 +22,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
       const { token, user } = response.data;
       localStorage.setItem("token", token);
       return { token, user };
@@ -36,7 +36,7 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async ({ name, email, password, role = "customer" }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/register', { name, email, password, role });
+      const response = await api.post('/auth/register', { name, email, password, role });
       const { token, user } = response.data;
       localStorage.setItem("token", token);
       return { token, user };
@@ -50,7 +50,7 @@ export const updateUserProfile = createAsyncThunk(
   'auth/updateUserProfile',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.put('/api/auth/profile', userData);
+      const response = await api.put('/auth/profile', userData);
       return response.data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Profile update failed");
@@ -72,7 +72,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+      delete api.defaults.headers.common["Authorization"];
       state.isAuthenticated = false;
       state.user = null;
       state.token = null;

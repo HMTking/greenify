@@ -1,7 +1,7 @@
 // Redux slice for shopping cart state management
 // Handles cart operations, item updates and optimistic UI updates
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../../utils/api';
 
 // Helper function to calculate total
 const calculateTotal = (items) => {
@@ -16,7 +16,7 @@ export const loadCart = createAsyncThunk(
   'cart/loadCart',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/cart`);
+      const response = await api.get('/cart');
       return response.data.cart;
     } catch (error) {
       console.error("Load cart error:", error);
@@ -29,8 +29,8 @@ export const addToCartAction = createAsyncThunk(
   'cart/addToCart',
   async ({ plantId, quantity = 1 }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/cart/add`,
+      const response = await api.post(
+        '/cart/add',
         { plantId, quantity }
       );
       return {
@@ -48,8 +48,8 @@ export const updateCartItemAction = createAsyncThunk(
   'cart/updateCartItem',
   async ({ plantId, quantity }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/cart/update/${plantId}`,
+      const response = await api.put(
+        `/cart/update/${plantId}`,
         { quantity }
       );
       return response.data.cart;
@@ -64,8 +64,8 @@ export const removeFromCartAction = createAsyncThunk(
   'cart/removeFromCart',
   async (plantId, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/cart/remove/${plantId}`
+      const response = await api.delete(
+        `/cart/remove/${plantId}`
       );
       return response.data.cart;
     } catch (error) {
@@ -79,7 +79,7 @@ export const clearCartAction = createAsyncThunk(
   'cart/clearCart',
   async (_, { rejectWithValue }) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/cart/clear`);
+      await api.delete('/cart/clear');
       return { items: [], total: 0 };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to clear cart";

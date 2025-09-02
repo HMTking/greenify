@@ -2,7 +2,7 @@
 // Handles adding, editing, deleting plants with image upload and form validation
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "../../utils/api";
 
 // Available category options
 const CATEGORY_OPTIONS = [
@@ -383,8 +383,8 @@ const AdminPlants = () => {
   const fetchPlants = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/plants?limit=200`, // Increased limit but still reasonable
+      const response = await api.get(
+        `/plants?limit=200`, // Increased limit but still reasonable
         {
           headers: {
             "Cache-Control": "max-age=30", // Cache for 30 seconds
@@ -470,26 +470,20 @@ const AdminPlants = () => {
         }
 
         let response;
-        const token = localStorage.getItem("token");
         const config = {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         };
 
         if (editingPlant) {
-          response = await axios.put(
-            `${import.meta.env.VITE_API_URL}/plants/${editingPlant._id}`,
+          response = await api.put(
+            `/plants/${editingPlant._id}`,
             formData,
             config
           );
         } else {
-          response = await axios.post(
-            `${import.meta.env.VITE_API_URL}/plants`,
-            formData,
-            config
-          );
+          response = await api.post(`/plants`, formData, config);
         }
 
         // Check if response indicates success
@@ -554,9 +548,7 @@ const AdminPlants = () => {
     async (plantId) => {
       if (window.confirm("Are you sure you want to delete this plant?")) {
         try {
-          await axios.delete(
-            `${import.meta.env.VITE_API_URL}/plants/${plantId}`
-          );
+          await api.delete(`/plants/${plantId}`);
           setMessage("Plant deleted successfully!");
           fetchPlants();
           setTimeout(() => setMessage(""), 3000);

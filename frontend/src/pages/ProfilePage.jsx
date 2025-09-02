@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
-import axios from "axios";
+import api from "../utils/api";
 import "./ProfilePage.css";
 
 const ProfilePage = () => {
@@ -93,13 +93,10 @@ const ProfilePage = () => {
     setPasswordMessage("");
 
     try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/auth/change-password`,
-        {
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        }
-      );
+      const response = await api.put(`/auth/change-password`, {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
 
       if (response.data.success) {
         setPasswordMessage("Password changed successfully!");

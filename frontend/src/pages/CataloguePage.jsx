@@ -1,6 +1,6 @@
 // Plant catalogue page with search, filter and add-to-cart functionality
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import "./CataloguePage.css";
 
 const CataloguePage = () => {
@@ -33,9 +33,7 @@ const CataloguePage = () => {
       if (sortBy) params.append("sortBy", sortBy);
       if (sortOrder) params.append("sortOrder", sortOrder);
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/plants?${params}`
-      );
+      const response = await api.get(`/plants?${params}`);
       setPlants(response.data.plants);
     } catch (error) {
       console.error("Error fetching plants:", error);
@@ -46,9 +44,7 @@ const CataloguePage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/plants/categories/list`
-      );
+      const response = await api.get(`/plants/categories/list`);
       setCategories(response.data.categories);
     } catch (error) {
       console.error("Error fetching categories:", error);

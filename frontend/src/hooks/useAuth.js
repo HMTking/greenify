@@ -19,7 +19,7 @@
 
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
+import api from '../utils/api';
 import {
   loadUser,
   loginUser,
@@ -37,9 +37,9 @@ export const useAuth = () => {
 
   // Set axios default header when token changes
   useEffect(() => {
-    axios.defaults.headers.common["Authorization"] = token 
+    api.defaults.headers.common["Authorization"] = token 
       ? `Bearer ${token}` 
-      : delete axios.defaults.headers.common["Authorization"];
+      : delete api.defaults.headers.common["Authorization"];
   }, [token]);
 
   // Load user on app start (only once)
