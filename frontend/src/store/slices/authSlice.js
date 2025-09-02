@@ -8,11 +8,9 @@ export const loadUser = createAsyncThunk(
   'auth/loadUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
+      const response = await axios.get('/api/auth/me');
       return response.data.user;
     } catch (error) {
-      console.error("Load user error:", error);
-      // Clear token on error
       localStorage.removeItem("token");
       delete axios.defaults.headers.common["Authorization"];
       return rejectWithValue('Token invalid');
@@ -24,21 +22,12 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/login`,
-        { email, password }
-      );
-      
-      // Store token in localStorage
-      localStorage.setItem("token", response.data.token);
-      
-      return {
-        token: response.data.token,
-        user: response.data.user,
-      };
+      const response = await axios.post('/api/auth/login', { email, password });
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      return { token, user };
     } catch (error) {
-      const message = error.response?.data?.message || "Login failed";
-      return rejectWithValue(message);
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
@@ -47,21 +36,12 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async ({ name, email, password, role = "customer" }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        { name, email, password, role }
-      );
-      
-      // Store token in localStorage
-      localStorage.setItem("token", response.data.token);
-      
-      return {
-        token: response.data.token,
-        user: response.data.user,
-      };
+      const response = await axios.post('/api/auth/register', { name, email, password, role });
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      return { token, user };
     } catch (error) {
-      const message = error.response?.data?.message || "Registration failed";
-      return rejectWithValue(message);
+      return rejectWithValue(error.response?.data?.message || "Registration failed");
     }
   }
 );
@@ -70,14 +50,10 @@ export const updateUserProfile = createAsyncThunk(
   'auth/updateUserProfile',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/auth/profile`,
-        userData
-      );
+      const response = await axios.put('/api/auth/profile', userData);
       return response.data.user;
     } catch (error) {
-      const message = error.response?.data?.message || "Profile update failed";
-      return rejectWithValue(message);
+      return rejectWithValue(error.response?.data?.message || "Profile update failed");
     }
   }
 );

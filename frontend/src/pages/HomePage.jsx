@@ -1,7 +1,55 @@
 import { Link } from "react-router-dom";
+import { memo } from "react";
 import "./HomePage.css";
 
-const HomePage = () => {
+const FeatureCard = memo(({ icon, title, description }) => (
+  <div className="feature-card">
+    <div className="feature-icon">{icon}</div>
+    <h3>{title}</h3>
+    <p>{description}</p>
+  </div>
+));
+
+const CategoryCard = memo(({ to, icon, title }) => (
+  <Link to={to} className="category-card">
+    <div className="category-icon">{icon}</div>
+    <h3>{title}</h3>
+  </Link>
+));
+
+const features = [
+  {
+    icon: "🌱",
+    title: "Fresh Plants",
+    description:
+      "All our plants are fresh and healthy, sourced from trusted growers.",
+  },
+  {
+    icon: "🚚",
+    title: "Fast Delivery",
+    description:
+      "Quick and secure delivery to your doorstep with Cash on Delivery.",
+  },
+  {
+    icon: "❤️",
+    title: "Plant Care",
+    description:
+      "Get expert advice and tips to keep your plants healthy and thriving.",
+  },
+];
+
+const categories = [
+  { to: "/catalogue?category=Indoor", icon: "🏠", title: "Indoor Plants" },
+  { to: "/catalogue?category=Outdoor", icon: "🌳", title: "Outdoor Plants" },
+  { to: "/catalogue?category=Succulents", icon: "🌵", title: "Succulents" },
+  {
+    to: "/catalogue?category=Flowering",
+    icon: "🌸",
+    title: "Flowering Plants",
+  },
+];
+
+const HomePage = memo(() => {
   return (
     <div className="homepage">
       {/* Hero Section */}
@@ -22,30 +70,9 @@ const HomePage = () => {
         <div className="container">
           <h2 className="section-title text-center">Why Choose Us?</h2>
           <div className="grid grid-cols-3">
-            <div className="feature-card">
-              <div className="feature-icon">🌱</div>
-              <h3>Fresh Plants</h3>
-              <p>
-                All our plants are fresh and healthy, sourced from trusted
-                growers.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🚚</div>
-              <h3>Fast Delivery</h3>
-              <p>
-                Quick and secure delivery to your doorstep with Cash on
-                Delivery.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">❤️</div>
-              <h3>Plant Care</h3>
-              <p>
-                Get expert advice and tips to keep your plants healthy and
-                thriving.
-              </p>
-            </div>
+            {features.map((feature, index) => (
+              <FeatureCard key={index} {...feature} />
+            ))}
           </div>
         </div>
       </section>
@@ -55,27 +82,14 @@ const HomePage = () => {
         <div className="container">
           <h2 className="section-title text-center">Shop by Category</h2>
           <div className="grid grid-cols-4">
-            <Link to="/catalogue?category=Indoor" className="category-card">
-              <div className="category-icon">🏠</div>
-              <h3>Indoor Plants</h3>
-            </Link>
-            <Link to="/catalogue?category=Outdoor" className="category-card">
-              <div className="category-icon">🌳</div>
-              <h3>Outdoor Plants</h3>
-            </Link>
-            <Link to="/catalogue?category=Succulents" className="category-card">
-              <div className="category-icon">🌵</div>
-              <h3>Succulents</h3>
-            </Link>
-            <Link to="/catalogue?category=Flowering" className="category-card">
-              <div className="category-icon">🌸</div>
-              <h3>Flowering Plants</h3>
-            </Link>
+            {categories.map((category, index) => (
+              <CategoryCard key={index} {...category} />
+            ))}
           </div>
         </div>
       </section>
     </div>
   );
-};
+});
 
 export default HomePage;

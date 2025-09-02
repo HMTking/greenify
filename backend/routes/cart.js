@@ -15,7 +15,7 @@ router.get('/', auth, async (req, res) => {
     const cart = await Cart.findOne({ userId: req.user._id })
       .populate('items.plantId', 'name price image stock isActive');
 
-    if (!cart) {
+    if (!cart || !cart.items.length) {
       return res.json({
         success: true,
         cart: { items: [], total: 0 }
@@ -23,16 +23,13 @@ router.get('/', auth, async (req, res) => {
     }
 
     // Filter out inactive plants and calculate total
-    cart.items = cart.items.filter(item => item.plantId && item.plantId.isActive);
-    
-    const total = cart.items.reduce((sum, item) => {
-      return sum + (item.plantId.price * item.quantity);
-    }, 0);
+    const activeItems = cart.items.filter(item => item.plantId?.isActive);
+    const total = activeItems.reduce((sum, item) => sum + (item.plantId.price * item.quantity), 0);
 
     res.json({
       success: true,
       cart: {
-        items: cart.items,
+        items: activeItems,
         total: Math.floor(total)
       }
     });

@@ -39,9 +39,9 @@ router.get('/', async (req, res) => {
       limit = 12
     } = req.query;
 
-    let query = { isActive: true };
+    const query = { isActive: true };
 
-    // Search by name or description
+    // Build query object
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -49,45 +49,32 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    // Filter by category
-    if (category) {
-      query.categories = { $in: [category] };
-    }
-
-    // Filter by price range
+    if (category) query.categories = { $in: [category] };
+    
     if (minPrice || maxPrice) {
       query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      if (minPrice) query.price.$gte = +minPrice;
+      if (maxPrice) query.price.$lte = +maxPrice;
     }
 
-    // Filter by minimum rating
-    if (minRating) {
-      query.rating = { $gte: Number(minRating) };
-    }
+    if (minRating) query.rating = { $gte: +minRating };
+    if (inStock === 'true') query.stock = { $gt: 0 };
 
-    // Filter by stock
-    if (inStock === 'true') {
-      query.stock = { $gt: 0 };
-    }
+    const sortOptions = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
+    const limitNum = +limit;
+    const skip = (+page - 1) * limitNum;
 
-    // Sort options
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-
-    const plants = await Plant.find(query)
-      .sort(sortOptions)
-      .limit(Number(limit))
-      .skip((Number(page) - 1) * Number(limit));
-
-    const total = await Plant.countDocuments(query);
+    const [plants, total] = await Promise.all([
+      Plant.find(query).sort(sortOptions).limit(limitNum).skip(skip),
+      Plant.countDocuments(query)
+    ]);
 
     res.json({
       success: true,
       plants,
       pagination: {
-        currentPage: Number(page),
-        totalPages: Math.ceil(total / Number(limit)),
+        currentPage: +page,
+        totalPages: Math.ceil(total / limitNum),
         totalPlants: total
       }
     });
@@ -123,30 +110,23 @@ router.post('/', auth, admin, upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, originalPrice, categories, stock } = req.body;
 
-    // Parse categories - handle comma-separated string or array
-    let parsedCategories = [];
-    if (categories) {
-      if (Array.isArray(categories)) {
-        parsedCategories = categories;
-      } else if (typeof categories === 'string') {
-        parsedCategories = categories.split(',').map(cat => cat.trim()).filter(cat => cat);
-      }
-    }
+    // Parse categories
+    const parsedCategories = categories 
+      ? (Array.isArray(categories) ? categories : categories.split(',').map(cat => cat.trim()).filter(Boolean))
+      : [];
 
     const plantData = {
       name,
       description,
-      price: Math.floor(Number(price)),
-      originalPrice: originalPrice ? Math.floor(Number(originalPrice)) : undefined,
+      price: Math.floor(+price),
+      originalPrice: originalPrice ? Math.floor(+originalPrice) : undefined,
       categories: parsedCategories,
-      stock: Number(stock),
-      rating: 0, // Default rating, will be calculated from customer reviews
+      stock: +stock,
+      rating: 0,
       reviewCount: 0
     };
 
-    if (req.file) {
-      plantData.image = req.file.path; // Cloudinary returns the full URL in req.file.path
-    }
+    if (req.file) plantData.image = req.file.path;
 
     const plant = new Plant(plantData);
     
@@ -174,27 +154,21 @@ router.put('/:id', auth, admin, upload.single('image'), async (req, res) => {
 
     const { name, description, price, originalPrice, categories, stock } = req.body;
 
-    // Parse categories - handle comma-separated string or array
-    let parsedCategories = plant.categories; // Keep existing if not provided
-    if (categories) {
-      if (Array.isArray(categories)) {
-        parsedCategories = categories;
-      } else if (typeof categories === 'string') {
-        parsedCategories = categories.split(',').map(cat => cat.trim()).filter(cat => cat);
-      }
-    }
+    // Parse categories
+    const parsedCategories = categories 
+      ? (Array.isArray(categories) ? categories : categories.split(',').map(cat => cat.trim()).filter(Boolean))
+      : plant.categories;
 
-    plant.name = name || plant.name;
-    plant.description = description || plant.description;
-    plant.price = price ? Math.floor(Number(price)) : plant.price;
-    plant.originalPrice = originalPrice ? Math.floor(Number(originalPrice)) : plant.originalPrice;
-    plant.categories = parsedCategories;
-    plant.stock = stock !== undefined ? Number(stock) : plant.stock;
-    // Note: Rating is no longer updated by admin, it's calculated from customer reviews
+    Object.assign(plant, {
+      name: name || plant.name,
+      description: description || plant.description,
+      price: price ? Math.floor(+price) : plant.price,
+      originalPrice: originalPrice ? Math.floor(+originalPrice) : plant.originalPrice,
+      categories: parsedCategories,
+      stock: stock !== undefined ? +stock : plant.stock
+    });
 
-    if (req.file) {
-      plant.image = req.file.path; // Cloudinary returns the full URL in req.file.path
-    }
+    if (req.file) plant.image = req.file.path;
 
     await plant.save();
 
@@ -254,17 +228,15 @@ router.get('/categories/list', async (req, res) => {
 // @access Public
 router.get('/stats/count', async (req, res) => {
   try {
-    const totalPlants = await Plant.countDocuments({ isActive: true });
-    const inStockPlants = await Plant.countDocuments({ isActive: true, stock: { $gt: 0 } });
-    const outOfStockPlants = await Plant.countDocuments({ isActive: true, stock: 0 });
+    const [totalPlants, inStockPlants, outOfStockPlants] = await Promise.all([
+      Plant.countDocuments({ isActive: true }),
+      Plant.countDocuments({ isActive: true, stock: { $gt: 0 } }),
+      Plant.countDocuments({ isActive: true, stock: 0 })
+    ]);
     
     res.json({
       success: true,
-      stats: {
-        totalPlants,
-        inStockPlants,
-        outOfStockPlants
-      }
+      stats: { totalPlants, inStockPlants, outOfStockPlants }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

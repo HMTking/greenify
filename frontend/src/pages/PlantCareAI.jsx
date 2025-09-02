@@ -1,6 +1,5 @@
 // AI Plant Care Assistant Page - Main chatbot interface
-// Supports text, image, and combined queries with conversation memory via Gemini Chat Sessions
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import "./PlantCareAI.css";
 
 const PlantCareAI = () => {
@@ -27,133 +26,150 @@ const PlantCareAI = () => {
     }
   }, [inputText]);
 
+  // Memoize image preview URLs to avoid recreating on every render
+  const imagePreviewUrls = useMemo(
+    () => selectedImages.map((file) => URL.createObjectURL(file)),
+    [selectedImages]
+  );
+
+  // Cleanup URLs when images change
+  useEffect(() => {
+    return () => {
+      imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviewUrls]);
+
+  // Cleanup message image URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      messages.forEach((message) => {
+        if (message.imageUrls) {
+          message.imageUrls.forEach((url) => URL.revokeObjectURL(url));
+        }
+      });
+    };
+  }, [messages]);
+
   // Handle image selection
-  const handleImageSelect = (e) => {
+  const handleImageSelect = useCallback((e) => {
     const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+    if (!files.length) return;
 
-    // Limit to 5 images
-    const validFiles = files.slice(0, 5).filter((file) => {
-      const isValidType = file.type.startsWith("image/");
-      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
-      return isValidType && isValidSize;
-    });
+    const validFiles = files
+      .slice(0, 5)
+      .filter(
+        (file) =>
+          file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024
+      );
 
-    if (validFiles.length === 0) {
+    if (!validFiles.length) {
       alert("Please select valid image files (max 10MB each).");
       return;
     }
 
     setSelectedImages((prev) => [...prev, ...validFiles].slice(0, 5));
-  };
+  }, []);
 
   // Remove selected image
-  const removeImage = (index) => {
+  const removeImage = useCallback((index) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
   // Create image URLs for preview
-  const getImagePreviewUrl = (file) => {
-    return URL.createObjectURL(file);
-  };
+  const getImagePreviewUrl = useCallback(
+    (index) => imagePreviewUrls[index],
+    [imagePreviewUrls]
+  );
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
 
-    // Validate input
-    if (!inputText.trim() && selectedImages.length === 0) {
-      return;
-    }
+      if (!inputText.trim() && !selectedImages.length) return;
 
-    const userMessage = inputText.trim();
-    const images = [...selectedImages];
+      const userMessage = inputText.trim();
+      const images = [...selectedImages];
 
-    // Clear input
-    setInputText("");
-    setSelectedImages([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+      // Create image URLs for the message before clearing
+      const messageImageUrls = images.map((image) =>
+        URL.createObjectURL(image)
+      );
 
-    // Add user message to chat
-    const newMessage = {
-      id: Date.now(),
-      type: "user",
-      text: userMessage,
-      images: images,
-      timestamp: new Date(),
-    };
+      // Clear input
+      setInputText("");
+      setSelectedImages([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
-    setMessages((prev) => [...prev, newMessage]);
-    setIsLoading(true);
-
-    try {
-      // Prepare FormData
-      const formData = new FormData();
-
-      if (userMessage) {
-        formData.append("message", userMessage);
-      }
-
-      if (sessionId) {
-        formData.append("sessionId", sessionId);
-      }
-
-      images.forEach((image, index) => {
-        formData.append("images", image);
-      });
-
-      // Send request to backend
-      const response = await fetch("/api/ai-chat/message", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to send message");
-      }
-
-      // Store session ID for conversation continuity
-      if (data.sessionId) {
-        setSessionId(data.sessionId);
-      }
-
-      // Add AI response to chat
-      const aiMessage = {
-        id: Date.now() + 1,
-        type: "ai",
-        text: data.message,
+      // Add user message to chat
+      const newMessage = {
+        id: Date.now(),
+        type: "user",
+        text: userMessage,
+        images: images,
+        imageUrls: messageImageUrls, // Store URLs for display
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("Chat error:", error);
+      setMessages((prev) => [...prev, newMessage]);
+      setIsLoading(true);
 
-      // Add error message to chat
-      const errorMessage = {
-        id: Date.now() + 1,
-        type: "error",
-        text: error.message || "Sorry, something went wrong. Please try again.",
-        timestamp: new Date(),
-      };
+      try {
+        const formData = new FormData();
+        if (userMessage) formData.append("message", userMessage);
+        if (sessionId) formData.append("sessionId", sessionId);
+        images.forEach((image) => formData.append("images", image));
 
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        const response = await fetch("/api/ai-chat/message", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to send message");
+        }
+
+        if (data.sessionId) setSessionId(data.sessionId);
+
+        const aiMessage = {
+          id: Date.now() + 1,
+          type: "ai",
+          text: data.message,
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, aiMessage]);
+      } catch (error) {
+        console.error("Chat error:", error);
+
+        const errorMessage = {
+          id: Date.now() + 1,
+          type: "error",
+          text:
+            error.message || "Sorry, something went wrong. Please try again.",
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [inputText, selectedImages, sessionId]
+  );
 
   // Handle textarea keypress (Enter to send, Shift+Enter for new line)
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
+  const handleKeyPress = useCallback(
+    (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e);
+      }
+    },
+    [handleSubmit]
+  );
 
   // Format message text with comprehensive markdown-like formatting and structure
   const formatMessageText = (text) => {
@@ -311,7 +327,7 @@ const PlantCareAI = () => {
         >
           {messages.length === 0 ? (
             <div className="chat-header">
-              <h1 className="chat-title">🌱 Plant Care AI Assistant</h1>
+              <h1 className="chat-title">Plant Care AI Assistant</h1>
               <p className="chat-subtitle">
                 Get expert plant care advice, disease diagnosis, and plant
                 identification. You can send text questions, upload plant
@@ -326,14 +342,25 @@ const PlantCareAI = () => {
               >
                 {message.images && message.images.length > 0 && (
                   <div className="message-images">
-                    {message.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={getImagePreviewUrl(image)}
-                        alt={`Uploaded plant ${index + 1}`}
-                        className="message-image"
-                      />
-                    ))}
+                    {message.imageUrls
+                      ? // For user messages with stored URLs
+                        message.imageUrls.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Uploaded plant ${index + 1}`}
+                            className="message-image"
+                          />
+                        ))
+                      : // Fallback for images without stored URLs
+                        message.images.map((image, index) => (
+                          <img
+                            key={index}
+                            src={URL.createObjectURL(image)}
+                            alt={`Uploaded plant ${index + 1}`}
+                            className="message-image"
+                          />
+                        ))}
                   </div>
                 )}
                 {message.type === "ai"
@@ -385,7 +412,7 @@ const PlantCareAI = () => {
                 {selectedImages.map((image, index) => (
                   <div key={index} className="image-preview">
                     <img
-                      src={getImagePreviewUrl(image)}
+                      src={getImagePreviewUrl(index)}
                       alt={`Preview ${index + 1}`}
                     />
                     <button

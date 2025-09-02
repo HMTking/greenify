@@ -1,6 +1,4 @@
-// Main navigation bar component with responsive design and user authentication
-// Handles different navigation options for admin/regular users and mobile menu toggle
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useCart } from "../hooks/useCart";
@@ -14,6 +12,16 @@ const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const isAdmin = useMemo(() => user?.role === "admin", [user?.role]);
+  const cartItemsCount = useMemo(
+    () => getCartItemsCount(),
+    [getCartItemsCount]
+  );
+  const isActive = useCallback(
+    (path) => location.pathname === path,
+    [location.pathname]
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -68,43 +76,35 @@ const Navbar = () => {
     };
   }, [isMobileMenuOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     navigate("/");
     setShowProfileDropdown(false);
     setIsMobileMenuOpen(false);
-  };
+  }, [logout, navigate]);
 
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  const toggleProfileDropdown = useCallback(() => {
+    setShowProfileDropdown((prev) => !prev);
+  }, []);
 
-  const toggleProfileDropdown = () => {
-    setShowProfileDropdown(!showProfileDropdown);
-  };
-
-  const closeProfileDropdown = () => {
+  const closeProfileDropdown = useCallback(() => {
     setShowProfileDropdown(false);
-  };
+  }, []);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen((prev) => !prev);
+  }, []);
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
-  };
+  }, []);
 
   return (
     <nav className="navbar">
       <div className="container">
         <div className="nav-content">
           <Link
-            to={
-              isAuthenticated && user?.role === "admin"
-                ? "/admin/dashboard"
-                : "/"
-            }
+            to={isAuthenticated && isAdmin ? "/admin/dashboard" : "/"}
             className="nav-logo"
             onClick={closeMobileMenu}
           >
@@ -131,7 +131,7 @@ const Navbar = () => {
 
           <div className={`nav-links ${isMobileMenuOpen ? "mobile-open" : ""}`}>
             {/* Show Home and Catalogue only for non-admin users */}
-            {(!isAuthenticated || user?.role !== "admin") && (
+            {(!isAuthenticated || !isAdmin) && (
               <>
                 <Link
                   to="/"
@@ -156,7 +156,7 @@ const Navbar = () => {
                   }`}
                   onClick={closeMobileMenu}
                 >
-                  🌱 AI Assistant
+                  AI Assistant
                 </Link>
               </>
             )}
@@ -164,7 +164,7 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 {/* Show Cart only for non-admin users */}
-                {user?.role !== "admin" && (
+                {!isAdmin && (
                   <Link
                     to="/cart"
                     className={`nav-link cart-link ${
@@ -172,11 +172,11 @@ const Navbar = () => {
                     }`}
                     onClick={closeMobileMenu}
                   >
-                    Cart ({getCartItemsCount()})
+                    Cart ({cartItemsCount})
                   </Link>
                 )}
 
-                {user?.role === "admin" ? (
+                {isAdmin ? (
                   <Link
                     to="/admin/dashboard"
                     className={`nav-link ${

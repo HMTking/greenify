@@ -37,11 +37,9 @@ export const useAuth = () => {
 
   // Set axios default header when token changes
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-    }
+    axios.defaults.headers.common["Authorization"] = token 
+      ? `Bearer ${token}` 
+      : delete axios.defaults.headers.common["Authorization"];
   }, [token]);
 
   // Load user on app start (only once)
@@ -80,9 +78,8 @@ export const useAuth = () => {
     }
   }, [dispatch]);
 
-  const logoutUser = useCallback(() => {
-    dispatch(logout());
-  }, [dispatch]);
+  const logoutUser = useCallback(() => dispatch(logout()), [dispatch]);
+  const clearAuthError = useCallback(() => dispatch(clearError()), [dispatch]);
 
   const updateProfile = useCallback(async (userData) => {
     try {
@@ -91,10 +88,6 @@ export const useAuth = () => {
     } catch (error) {
       return { success: false, message: error };
     }
-  }, [dispatch]);
-
-  const clearAuthError = useCallback(() => {
-    dispatch(clearError());
   }, [dispatch]);
 
   // Memoize the return object to prevent unnecessary re-renders

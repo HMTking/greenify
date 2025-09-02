@@ -1,28 +1,20 @@
-// Main Express server file that sets up API routes and database connections
-// Configures middleware, MongoDB connection and starts the server
 const express = require('express');
 const mongoose = require('mongoose');
-// CORS (cross origin resource sharing) allows your frontend running on a different port/domain to make requests to your backend API.
 const cors = require('cors');
 
-// To load environment variables from a .env file into process.env.
-const dotenv = require('dotenv');
-// Load environment variables Example: process.env.MONGO_URI. If .env has MONGO_URI
-dotenv.config();
+require('dotenv').config();
 
-// Express application instance.
 const app = express();
 
 // Middleware
-// Applies the CORS middleware globally.
 app.use(cors());
-
-// Middleware to parse JSON request bodies.
-// Example: if frontend sends { "name": "Plant" }, Express will parse it and put it in req.body.
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
 .then(() => console.log('MongoDB connected successfully'))
 .catch(err => console.error('MongoDB connection error:', err));
 

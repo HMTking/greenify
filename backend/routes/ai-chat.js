@@ -13,17 +13,9 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Configure multer for handling image uploads in memory
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit per file
-    files: 5 // Maximum 5 files
-  },
+  limits: { fileSize: 10 * 1024 * 1024, files: 5 },
   fileFilter: (req, file, cb) => {
-    // Allow only image files
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'), false);
-    }
+    cb(file.mimetype.startsWith('image/') ? null : new Error('Only image files are allowed'), file.mimetype.startsWith('image/'));
   }
 });
 
@@ -31,14 +23,12 @@ const upload = multer({
 const chatSessions = new Map();
 
 // Helper function to convert buffer to generative part
-function bufferToGenerativePart(buffer, mimeType) {
-  return {
-    inlineData: {
-      data: buffer.toString('base64'),
-      mimeType,
-    },
-  };
-}
+const bufferToGenerativePart = (buffer, mimeType) => ({
+  inlineData: {
+    data: buffer.toString('base64'),
+    mimeType,
+  },
+});
 
 // Helper function to create system prompt for plant care assistant
 function getSystemPrompt() {
@@ -83,62 +73,47 @@ router.post('/message', upload.array('images', 5), async (req, res) => {
     const images = req.files;
 
     // Validate input
-    if (!message && (!images || images.length === 0)) {
-      return res.status(400).json({ 
-        error: 'Either message text or images must be provided' 
-      });
+    if (!message?.trim() && (!images?.length)) {
+      return res.status(400).json({ error: 'Either message text or images must be provided' });
     }
 
     // Get or create chat session
     let chatSession;
+    const newSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     if (sessionId && chatSessions.has(sessionId)) {
       chatSession = chatSessions.get(sessionId);
     } else {
-      // Create new chat session with system prompt
       const model = genAI.getGenerativeModel({ 
         model: 'gemini-1.5-flash',
         systemInstruction: getSystemPrompt()
       });
       chatSession = model.startChat({
         history: [],
-        generationConfig: {
-          maxOutputTokens: 1000,
-          temperature: 0.7,
-        },
+        generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
       });
-      
-      // Generate new session ID if not provided
-      const newSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       chatSessions.set(newSessionId, chatSession);
     }
 
     // Prepare the prompt parts
-    let prompt = [];
+    const prompt = [];
     
-    // Add text message if provided
-    if (message && message.trim()) {
-      prompt.push(message.trim());
-    }
-
-    // Add images if provided
-    if (images && images.length > 0) {
-      for (const image of images) {
-        const imagePart = bufferToGenerativePart(image.buffer, image.mimetype);
-        prompt.push(imagePart);
-      }
+    if (message?.trim()) prompt.push(message.trim());
+    if (images?.length) {
+      images.forEach(image => {
+        prompt.push(bufferToGenerativePart(image.buffer, image.mimetype));
+      });
     }
 
     // Send message to AI
     const result = await chatSession.sendMessage(prompt);
-    const response = result.response;
-    const aiMessage = response.text();
+    const aiMessage = result.response.text();
 
-    // Return the response with session ID
     res.json({
       message: aiMessage,
-      sessionId: sessionId || Array.from(chatSessions.keys()).find(key => chatSessions.get(key) === chatSession),
-      hasImages: images && images.length > 0,
-      imageCount: images ? images.length : 0
+      sessionId: newSessionId,
+      hasImages: Boolean(images?.length),
+      imageCount: images?.length || 0
     });
 
   } catch (error) {
