@@ -74,6 +74,12 @@ input, textarea, [contenteditable="true"] {
   min-height: calc(100vh - 80px);
 }
 
+.main-content.ai-page {
+  padding-top: 0;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
 /* Container */
 .container {
   width: 100%;

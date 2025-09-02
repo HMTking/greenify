@@ -149,6 +149,15 @@ const Navbar = () => {
                 >
                   Catalogue
                 </Link>
+                <Link
+                  to="/plant-care-ai"
+                  className={`nav-link ${
+                    isActive("/plant-care-ai") ? "active" : ""
+                  }`}
+                  onClick={closeMobileMenu}
+                >
+                  🌱 AI Assistant
+                </Link>
               </>
             )}
 
