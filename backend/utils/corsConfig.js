@@ -26,6 +26,12 @@ class CORSManager {
         allowedOrigins.push(process.env.FRONTEND_URL);
       }
       
+      // Add production origins in development for testing
+      if (process.env.PRODUCTION_ORIGINS) {
+        const prodOrigins = process.env.PRODUCTION_ORIGINS.split(',').map(origin => origin.trim());
+        allowedOrigins.push(...prodOrigins);
+      }
+      
       // Add any additional development URLs from environment
       if (process.env.ADDITIONAL_ORIGINS) {
         const additionalOrigins = process.env.ADDITIONAL_ORIGINS.split(',').map(origin => origin.trim());
@@ -36,7 +42,7 @@ class CORSManager {
       return allowedOrigins;
     }
     
-    // Production mode: Use environment variables only
+    // Production mode: Use environment variables and dynamic checking
     const productionOrigins = [];
     
     if (process.env.FRONTEND_URL) {
@@ -48,14 +54,22 @@ class CORSManager {
       productionOrigins.push(...envOrigins);
     }
     
-    // Fallback for production if no origins are specified
-    if (productionOrigins.length === 0) {
-      console.warn('⚠️  No production origins configured. Using dynamic origin checking.');
-      return this.dynamicOriginChecker;
+    // Always use dynamic checking in production for flexibility
+    console.log('🚀 CORS Production - Using dynamic origin checking with allowed patterns');
+    if (productionOrigins.length > 0) {
+      console.log('🚀 CORS Production Static Origins:', productionOrigins);
     }
     
-    console.log('🚀 CORS Production Origins:', productionOrigins);
-    return productionOrigins;
+    return (origin, callback) => {
+      // Allow static origins first
+      if (productionOrigins.includes(origin)) {
+        console.log('✅ Allowing static production origin:', origin);
+        return callback(null, true);
+      }
+      
+      // Use dynamic checker for pattern matching
+      return this.dynamicOriginChecker(origin, callback);
+    };
   }
   
   /**
