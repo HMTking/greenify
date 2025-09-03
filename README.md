@@ -11,7 +11,7 @@ A modern, full-stack plant e-commerce platform with user authentication, shoppin
 - **Database**: MongoDB Atlas compatible
 - **Storage**: Cloudinary integration
 
-The project is live here: [greenify-frontend-seven.vercel.app](https://greenify-frontend-seven.vercel.app)
+The project is live here: [greenify-frontend-seven.vercel.app](https://greenify-frontend-chi.vercel.app/)
 
 ## ✨ Features
 
