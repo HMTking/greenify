@@ -1,5 +1,6 @@
 // AI Plant Care Assistant Page - Main chatbot interface
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import api from "../utils/api";
 import "./PlantCareAI.css";
 
 const PlantCareAI = () => {
@@ -120,16 +121,13 @@ const PlantCareAI = () => {
         if (sessionId) formData.append("sessionId", sessionId);
         images.forEach((image) => formData.append("images", image));
 
-        const response = await fetch("/api/ai-chat/message", {
-          method: "POST",
-          body: formData,
+        const response = await api.post("/ai-chat/message", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to send message");
-        }
+        const data = response.data;
 
         if (data.sessionId) setSessionId(data.sessionId);
 
@@ -148,7 +146,7 @@ const PlantCareAI = () => {
           id: Date.now() + 1,
           type: "error",
           text:
-            error.message || "Sorry, something went wrong. Please try again.",
+            error.response?.data?.error || error.message || "Sorry, something went wrong. Please try again.",
           timestamp: new Date(),
         };
 
