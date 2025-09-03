@@ -20,11 +20,17 @@ const corsOptions = {
       'http://127.0.0.1:3000'
     ].filter(Boolean);
     
+    console.log('🔍 CORS Debug Info:');
+    console.log('Request origin:', origin);
+    console.log('FRONTEND_URL env var:', process.env.FRONTEND_URL);
+    console.log('Allowed origins:', allowedOrigins);
+    
     if (allowedOrigins.includes(origin)) {
+      console.log('✅ Origin allowed');
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
-      console.log('Allowed origins:', allowedOrigins);
+      console.log('❌ CORS blocked origin:', origin);
+      console.log('💡 Make sure FRONTEND_URL environment variable is set correctly');
       callback(new Error('Not allowed by CORS'));
     }
   },
