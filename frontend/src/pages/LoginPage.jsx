@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
+import { ValidationUtils } from "../utils/validation";
+import { UIUtils, ErrorUtils } from "../utils/helpers";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../utils/constants";
 import TestCredentials from "../components/TestCredentials";
 import "./AuthPages.css";
 
@@ -43,16 +46,18 @@ const LoginPage = () => {
     setMessage("");
     setLocalError("");
 
-    const result = await login(data.email, data.password);
-    if (result.success) {
-      setMessage("Login successful!");
-      // Remove manual navigation - let useEffect handle it when isAuthenticated changes
-    } else {
-      // Set local error if login fails
+    try {
+      const result = await login(data.email, data.password);
+      if (result.success) {
+        setMessage(SUCCESS_MESSAGES.LOGIN_SUCCESS);
+        // Remove manual navigation - let useEffect handle it when isAuthenticated changes
+      } else {
+        // Set local error if login fails
+        setLocalError(result.message || error || ERROR_MESSAGES.LOGIN_FAILED);
+      }
+    } catch (err) {
       setLocalError(
-        result.message ||
-          error ||
-          "Login failed. Please check your credentials."
+        ErrorUtils.getErrorMessage(err, ERROR_MESSAGES.GENERIC_ERROR)
       );
     }
   };
@@ -85,16 +90,7 @@ const LoginPage = () => {
               type="button"
               onClick={() => setShowTestCredentials(!showTestCredentials)}
               className="btn btn-secondary"
-              style={{
-                backgroundColor: showTestCredentials ? "#4f46e5" : "#6b7280",
-                color: "white",
-                padding: "0.5rem 1rem",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "0.875rem",
-                transition: "all 0.2s ease",
-              }}
+              style={UIUtils.getToggleButtonStyles(showTestCredentials)}
             >
               {showTestCredentials ? "Hide" : "Show"} Test Credentials
             </button>
@@ -111,17 +107,10 @@ const LoginPage = () => {
               <input
                 type="email"
                 className="auth-form-input"
-                {...register("email", {
-                  required: "Email is required",
-                  minLength: {
-                    value: 5,
-                    message: "Email must be at least 5 characters",
-                  },
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Enter a valid email address",
-                  },
-                })}
+                {...register(
+                  "email",
+                  ValidationUtils.formValidationRules.email
+                )}
                 placeholder="Enter your email"
               />
               {errors.email && (
@@ -134,13 +123,10 @@ const LoginPage = () => {
               <input
                 type="password"
                 className="auth-form-input"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
-                })}
+                {...register(
+                  "password",
+                  ValidationUtils.formValidationRules.password
+                )}
                 placeholder="Enter your password"
               />
               {errors.password && (

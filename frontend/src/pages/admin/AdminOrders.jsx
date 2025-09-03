@@ -209,15 +209,46 @@ const AdminOrders = () => {
   const fetchAllOrders = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("🔍 AdminOrders: Fetching orders...");
+      console.log(
+        "🔍 AdminOrders: API base URL:",
+        import.meta.env.VITE_API_URL
+      );
+      console.log(
+        "🔍 AdminOrders: Full URL:",
+        `${
+          import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+        }/orders/admin/all`
+      );
+      console.log(
+        "🔍 AdminOrders: Auth token:",
+        localStorage.getItem("token") ? "Present" : "Missing"
+      );
+
       const response = await api.get(`/orders/admin/all`, {
         headers: {
           "Cache-Control": "max-age=30", // Cache for 30 seconds
         },
       });
-      setAllOrders(response.data.orders);
+
+      console.log("📊 AdminOrders: Response received:", response.data);
+      console.log("📊 AdminOrders: Orders array:", response.data.orders);
+      console.log(
+        "📊 AdminOrders: Orders count:",
+        response.data.orders ? response.data.orders.length : 0
+      );
+      setAllOrders(response.data.orders || []);
     } catch (error) {
-      setError("Failed to fetch orders");
-      setTimeout(() => setError(""), 3000);
+      console.error("❌ AdminOrders: Error fetching orders:", error);
+      console.error("❌ AdminOrders: Error response:", error.response);
+      console.error("❌ AdminOrders: Error message:", error.message);
+      console.error("❌ AdminOrders: Error status:", error.response?.status);
+      console.error("❌ AdminOrders: Error data:", error.response?.data);
+      setError(
+        "Failed to fetch orders: " +
+          (error.response?.data?.message || error.message)
+      );
+      setTimeout(() => setError(""), 5000);
     } finally {
       setLoading(false);
     }

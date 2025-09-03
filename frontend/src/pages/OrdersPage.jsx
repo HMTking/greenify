@@ -117,20 +117,11 @@ const RatingModal = ({
         return;
       }
 
-      const token = localStorage.getItem("token");
-      await api.post(
-        `/ratings`,
-        {
-          plantId,
-          orderId,
-          rating,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.post(`/ratings`, {
+        plantId,
+        orderId,
+        rating,
+      });
 
       // Show success message in modal
       const successMessage = isEditing

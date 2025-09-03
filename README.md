@@ -151,6 +151,15 @@ VITE_API_URL=http://localhost:5000/api
 
 ### Running the Application
 
+**Option 1: Quick Start (Recommended)**
+
+```bash
+# From project root
+./start-dev.sh
+```
+
+**Option 2: Manual Start**
+
 1. **Start the Backend** (Terminal 1)
 
    ```bash
@@ -168,6 +177,19 @@ VITE_API_URL=http://localhost:5000/api
 3. **Access the Application**
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:5000
+
+### Testing Routes
+
+Test all API endpoints to ensure frontend-backend synchronization:
+
+```bash
+# From project root (backend must be running)
+./test-routes.sh
+```
+
+### Route Documentation
+
+For detailed frontend-backend route mappings, see [ROUTES_MAPPING.md](./ROUTES_MAPPING.md)
 
 ## 📊 Database Schema
 

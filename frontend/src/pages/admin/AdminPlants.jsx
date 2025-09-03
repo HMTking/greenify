@@ -383,6 +383,18 @@ const AdminPlants = () => {
   const fetchPlants = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("🔍 AdminPlants: Fetching plants...");
+      console.log(
+        "🔍 AdminPlants: API base URL:",
+        import.meta.env.VITE_API_URL
+      );
+      console.log(
+        "🔍 AdminPlants: Full URL:",
+        `${
+          import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+        }/plants?limit=200`
+      );
+
       const response = await api.get(
         `/plants?limit=200`, // Increased limit but still reasonable
         {
@@ -391,10 +403,25 @@ const AdminPlants = () => {
           },
         }
       );
-      setPlants(response.data.plants);
+
+      console.log("📊 AdminPlants: Response received:", response.data);
+      console.log("📊 AdminPlants: Plants array:", response.data.plants);
+      console.log(
+        "📊 AdminPlants: Plants count:",
+        response.data.plants ? response.data.plants.length : 0
+      );
+      setPlants(response.data.plants || []);
     } catch (error) {
-      setError("Failed to fetch plants");
-      setTimeout(() => setError(""), 3000);
+      console.error("❌ AdminPlants: Error fetching plants:", error);
+      console.error("❌ AdminPlants: Error response:", error.response);
+      console.error("❌ AdminPlants: Error message:", error.message);
+      console.error("❌ AdminPlants: Error status:", error.response?.status);
+      console.error("❌ AdminPlants: Error data:", error.response?.data);
+      setError(
+        "Failed to fetch plants: " +
+          (error.response?.data?.message || error.message)
+      );
+      setTimeout(() => setError(""), 5000);
     } finally {
       setLoading(false);
     }

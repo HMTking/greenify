@@ -97,32 +97,6 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// @route GET /api/orders/:id
-// @desc Get single order
-// @access Private
-router.get('/:id', auth, async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id)
-      .populate('items.plantId', 'name image');
-
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    // Check if user owns this order or is admin
-    if (order.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    res.json({
-      success: true,
-      order
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 // @route GET /api/orders/admin/all
 // @desc Get all orders (Admin only)
 // @access Private/Admin
@@ -143,6 +117,72 @@ router.get('/admin/all', auth, admin, async (req, res) => {
       success: true,
       orders,
       total: orders.length
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route GET /api/orders/admin/stats
+// @desc Get order statistics (Admin only)
+// @access Private/Admin
+router.get('/admin/stats', auth, admin, async (req, res) => {
+  try {
+    const totalOrders = await Order.countDocuments();
+    
+    // Calculate total revenue excluding cancelled orders
+    const totalRevenue = await Order.aggregate([
+      { 
+        $match: { 
+          status: { $ne: 'cancelled' } // Exclude cancelled orders from revenue
+        } 
+      },
+      { $group: { _id: null, total: { $sum: '$total' } } }
+    ]);
+    
+    const ordersByStatus = await Order.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+
+    const recentOrders = await Order.find()
+      .populate('items.plantId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.json({
+      success: true,
+      stats: {
+        totalOrders,
+        totalRevenue: totalRevenue[0]?.total || 0,
+        ordersByStatus,
+        recentOrders
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route GET /api/orders/:id
+// @desc Get single order
+// @access Private
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('items.plantId', 'name image');
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Check if user owns this order or is admin
+    if (order.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    res.json({
+      success: true,
+      order
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -216,46 +256,6 @@ router.put('/:id/status', auth, admin, async (req, res) => {
       success: true,
       message: 'Order status updated',
       order
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// @route GET /api/orders/admin/stats
-// @desc Get order statistics (Admin only)
-// @access Private/Admin
-router.get('/admin/stats', auth, admin, async (req, res) => {
-  try {
-    const totalOrders = await Order.countDocuments();
-    
-    // Calculate total revenue excluding cancelled orders
-    const totalRevenue = await Order.aggregate([
-      { 
-        $match: { 
-          status: { $ne: 'cancelled' } // Exclude cancelled orders from revenue
-        } 
-      },
-      { $group: { _id: null, total: { $sum: '$total' } } }
-    ]);
-    
-    const ordersByStatus = await Order.aggregate([
-      { $group: { _id: '$status', count: { $sum: 1 } } }
-    ]);
-
-    const recentOrders = await Order.find()
-      .populate('items.plantId', 'name')
-      .sort({ createdAt: -1 })
-      .limit(5);
-
-    res.json({
-      success: true,
-      stats: {
-        totalOrders,
-        totalRevenue: totalRevenue[0]?.total || 0,
-        ordersByStatus,
-        recentOrders
-      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

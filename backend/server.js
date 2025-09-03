@@ -1,55 +1,57 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
 require('dotenv').config();
+
+// Import utilities and middleware
+const { HTTP_STATUS } = require('./utils/constants');
+const { ResponseUtils } = require('./utils/helpers');
+const CORSManager = require('./utils/corsConfig');
+const { 
+  errorHandler, 
+  notFoundHandler, 
+  requestLogger, 
+  securityHeaders 
+} = require('./middleware/errorHandler');
 
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      'https://greenify-frontend-chi.vercel.app', // Production frontend
-      'http://localhost:5173', // Local development
-      'http://localhost:3000',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:3000'
-    ].filter(Boolean);
-    
-    console.log('🔍 CORS Debug Info:');
-    console.log('Request origin:', origin);
-    console.log('FRONTEND_URL env var:', process.env.FRONTEND_URL);
-    console.log('Allowed origins:', allowedOrigins);
-    
-    if (allowedOrigins.includes(origin)) {
-      console.log('✅ Origin allowed');
-      callback(null, true);
-    } else {
-      console.log('❌ CORS blocked origin:', origin);
-      console.log('💡 Make sure FRONTEND_URL environment variable is set correctly');
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+// Trust proxy for accurate IP addresses
+app.set('trust proxy', 1);
 
-// Middleware
-app.use(cors(corsOptions));
+// Security headers
+app.use(securityHeaders);
+
+// Optimized CORS configuration
+const corsConfig = CORSManager.getCORSConfig();
+app.use(cors(corsConfig));
+
+// Log CORS configuration for debugging
+CORSManager.logCORSInfo();
+
+// Parse JSON bodies
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging middleware
+app.use(requestLogger);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Routes
+// Health check route
+app.get('/', (req, res) => {
+  ResponseUtils.success(res, HTTP_STATUS.OK, '🌱 Greenify API is running!', {
+    timestamp: new Date().toISOString(),
+    status: 'healthy',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// API Routes with proper error handling
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/plants', require('./routes/plants'));
 app.use('/api/cart', require('./routes/cart'));
@@ -57,12 +59,15 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/ratings', require('./routes/ratings'));
 app.use('/api/ai-chat', require('./routes/ai-chat'));
 
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Mini Plant Store API is running!' });
-});
+// 404 handler for unmatched routes
+app.use('*', notFoundHandler);
+
+// Global error handler (must be last middleware)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 API Base URL: http://localhost:${PORT}`);
 });

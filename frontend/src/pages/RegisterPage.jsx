@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
+import { ValidationUtils } from "../utils/validation";
+import { ErrorUtils } from "../utils/helpers";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../utils/constants";
 import "./AuthPages.css";
 
 const RegisterPage = () => {
@@ -43,19 +46,25 @@ const RegisterPage = () => {
     setMessage("");
     setLocalError("");
 
-    const result = await authRegister(
-      data.name,
-      data.email,
-      data.password,
-      "customer" // Always set to customer, no selection needed
-    );
-    if (result.success) {
-      setMessage("Registration successful!");
-      setTimeout(() => navigate("/"), 1000);
-    } else {
-      // Set local error if registration fails
+    try {
+      const result = await authRegister(
+        data.name,
+        data.email,
+        data.password,
+        "customer" // Always set to customer, no selection needed
+      );
+      if (result.success) {
+        setMessage(SUCCESS_MESSAGES.REGISTRATION_SUCCESS);
+        setTimeout(() => navigate("/"), 1000);
+      } else {
+        // Set local error if registration fails
+        setLocalError(
+          result.message || error || ERROR_MESSAGES.REGISTRATION_FAILED
+        );
+      }
+    } catch (err) {
       setLocalError(
-        result.message || error || "Registration failed. Please try again."
+        ErrorUtils.getErrorMessage(err, ERROR_MESSAGES.GENERIC_ERROR)
       );
     }
   };
@@ -83,29 +92,7 @@ const RegisterPage = () => {
               <input
                 type="text"
                 className="auth-form-input"
-                {...register("name", {
-                  required: "Name is required",
-                  minLength: {
-                    value: 2,
-                    message: "Name must be at least 2 characters",
-                  },
-                  maxLength: {
-                    value: 50,
-                    message: "Name cannot exceed 50 characters",
-                  },
-                  pattern: {
-                    value: /^[a-zA-Z\s'-]{2,50}$/,
-                    message:
-                      "Name can only contain letters, spaces, hyphens, and apostrophes",
-                  },
-                  validate: {
-                    noExtraSpaces: (value) =>
-                      (value.trim() === value && !value.includes("  ")) ||
-                      "Name cannot have leading/trailing spaces or multiple consecutive spaces",
-                    notOnlySpaces: (value) =>
-                      value.trim().length > 0 || "Name cannot be only spaces",
-                  },
-                })}
+                {...register("name", ValidationUtils.formValidationRules.name)}
                 placeholder="Enter your full name"
               />
               {errors.name && (
@@ -118,33 +105,10 @@ const RegisterPage = () => {
               <input
                 type="email"
                 className="auth-form-input"
-                {...register("email", {
-                  required: "Email is required",
-                  minLength: {
-                    value: 5,
-                    message: "Email must be at least 5 characters",
-                  },
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message:
-                      "Enter a valid email address (e.g., user@domain.com)",
-                  },
-                  validate: {
-                    noConsecutiveDots: (value) =>
-                      !value.includes("..") ||
-                      "Email cannot contain consecutive dots",
-                    validDomain: (value) => {
-                      const domain = value.split("@")[1];
-                      return (
-                        !domain ||
-                        (!domain.startsWith(".") && !domain.endsWith(".")) ||
-                        "Invalid domain format"
-                      );
-                    },
-                    noSpaces: (value) =>
-                      !/\s/.test(value) || "Email cannot contain spaces",
-                  },
-                })}
+                {...register(
+                  "email",
+                  ValidationUtils.formValidationRules.email
+                )}
                 placeholder="Enter your email"
               />
               {errors.email && (
@@ -157,19 +121,10 @@ const RegisterPage = () => {
               <input
                 type="password"
                 className="auth-form-input"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
-                  pattern: {
-                    value:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
-                    message:
-                      "Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 special character",
-                  },
-                })}
+                {...register(
+                  "password",
+                  ValidationUtils.formValidationRules.password
+                )}
                 placeholder="Enter your password"
               />
               {errors.password && (
@@ -183,7 +138,7 @@ const RegisterPage = () => {
                 type="password"
                 className="auth-form-input"
                 {...register("confirmPassword", {
-                  required: "Please confirm your password",
+                  ...ValidationUtils.formValidationRules.confirmPassword,
                   validate: (value) =>
                     value === password || "Passwords do not match",
                 })}

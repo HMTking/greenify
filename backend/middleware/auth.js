@@ -2,37 +2,70 @@
 // Provides auth and admin middleware functions for protecting API routes
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { ResponseUtils } = require('../utils/helpers');
+const { HTTP_STATUS, MESSAGES, USER_ROLES } = require('../utils/constants');
 
-const auth = async (req, res, next) => {
+/**
+ * Authentication middleware
+ * Verifies JWT token and attaches user to request
+ */
+const auth = ResponseUtils.asyncHandler(async (req, res, next) => {
+  const authHeader = req.header('Authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  
+  if (!token) {
+    return ResponseUtils.unauthorized(res, MESSAGES.ERROR.TOKEN_INVALID);
+  }
+
   try {
-    const authHeader = req.header('Authorization');
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    
-    if (!token) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
-    }
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select('-password').lean();
     
     if (!user) {
-      return res.status(401).json({ message: 'Token is not valid' });
+      return ResponseUtils.unauthorized(res, MESSAGES.ERROR.TOKEN_INVALID);
     }
 
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
+    ResponseUtils.unauthorized(res, MESSAGES.ERROR.TOKEN_INVALID);
   }
-};
+});
 
-// Admin middleware
+/**
+ * Admin authorization middleware
+ * Checks if authenticated user has admin role
+ */
 const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && req.user.role === USER_ROLES.ADMIN) {
     next();
   } else {
-    res.status(403).json({ message: 'Admin access required' });
+    ResponseUtils.forbidden(res, MESSAGES.ERROR.ADMIN_REQUIRED);
   }
 };
 
-module.exports = { auth, admin };
+/**
+ * Optional authentication middleware
+ * Attaches user if token is valid but doesn't require authentication
+ */
+const optionalAuth = ResponseUtils.asyncHandler(async (req, res, next) => {
+  const authHeader = req.header('Authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select('-password').lean();
+      
+      if (user) {
+        req.user = user;
+      }
+    } catch (error) {
+      // Token invalid, continue without user
+    }
+  }
+  
+  next();
+});
+
+module.exports = { auth, admin, optionalAuth };
