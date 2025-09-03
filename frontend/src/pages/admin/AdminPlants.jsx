@@ -476,21 +476,159 @@ const AdminPlants = () => {
         setError("");
         setMessage("");
 
-        // Validate categories selection
+        // Client-side validation with detailed error messages
+        const validationErrors = [];
+
+        // Name validation
+        if (!data.name || data.name.trim().length < 2) {
+          validationErrors.push(
+            "Plant name must be at least 2 characters long"
+          );
+        }
+        if (data.name && data.name.trim().length > 100) {
+          validationErrors.push("Plant name cannot exceed 100 characters");
+        }
+        if (data.name && !/^[a-zA-Z\s'-]+$/.test(data.name.trim())) {
+          validationErrors.push(
+            "Plant name can only contain letters, spaces, hyphens, and apostrophes"
+          );
+        }
+
+        // Description validation
+        if (!data.description || data.description.trim().length < 10) {
+          validationErrors.push(
+            "Description must be at least 10 characters long"
+          );
+        }
+        if (data.description && data.description.trim().length > 1000) {
+          validationErrors.push("Description cannot exceed 1000 characters");
+        }
+
+        // Price validation
+        const price = parseInt(data.price);
+        if (!data.price || isNaN(price)) {
+          validationErrors.push("Price is required and must be a valid number");
+        } else if (price < 1) {
+          validationErrors.push("Price must be at least ₹1");
+        } else if (price > 999999) {
+          validationErrors.push("Price cannot exceed ₹999,999");
+        } else if (!Number.isInteger(price)) {
+          validationErrors.push(
+            "Price must be a whole number (no decimals allowed)"
+          );
+        }
+
+        // Original price validation
+        if (data.originalPrice && data.originalPrice.toString().trim()) {
+          const originalPrice = parseInt(data.originalPrice);
+          if (isNaN(originalPrice)) {
+            validationErrors.push("Original price must be a valid number");
+          } else if (!Number.isInteger(originalPrice)) {
+            validationErrors.push(
+              "Original price must be a whole number (no decimals allowed)"
+            );
+          } else if (originalPrice < price) {
+            validationErrors.push(
+              "Original price must be greater than or equal to current price"
+            );
+          } else if (originalPrice > 999999) {
+            validationErrors.push("Original price cannot exceed ₹999,999");
+          }
+        }
+
+        // Stock validation
+        const stock = parseInt(data.stock);
+        if (!data.stock && data.stock !== 0 && data.stock !== "0") {
+          validationErrors.push("Stock quantity is required");
+        } else if (isNaN(stock)) {
+          validationErrors.push("Stock must be a valid number");
+        } else if (stock < 0) {
+          validationErrors.push("Stock cannot be negative");
+        } else if (stock > 10000) {
+          validationErrors.push("Stock cannot exceed 10,000 units");
+        } else if (!Number.isInteger(stock)) {
+          validationErrors.push("Stock must be a whole number");
+        }
+
+        // Categories validation
         if (selectedCategories.length === 0) {
-          setError("Please select at least one category");
+          validationErrors.push("Please select at least one category");
+        }
+        if (selectedCategories.length > 5) {
+          validationErrors.push("Cannot select more than 5 categories");
+        }
+
+        // Image validation
+        if (data.image && data.image[0]) {
+          const file = data.image[0];
+          const maxSize = 5 * 1024 * 1024; // 5MB
+          const allowedTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp",
+          ];
+
+          if (file.size > maxSize) {
+            validationErrors.push("Image size cannot exceed 5MB");
+          }
+          if (!allowedTypes.includes(file.type.toLowerCase())) {
+            validationErrors.push("Image must be in JPEG, PNG, or WebP format");
+          }
+        }
+
+        // Display client-side validation errors
+        if (validationErrors.length > 0) {
+          setError(
+            <div>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: "0.75rem",
+                  color: "#dc2626",
+                }}
+              >
+                ⚠️ Please fix the following errors:
+              </div>
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: "1.5rem",
+                  listStyle: "disc",
+                  color: "#dc2626",
+                }}
+              >
+                {validationErrors.map((err, index) => (
+                  <li
+                    key={index}
+                    style={{
+                      marginBottom: "0.5rem",
+                      lineHeight: "1.4",
+                    }}
+                  >
+                    {err}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
           setSubmitting(false);
           return;
         }
 
         const formData = new FormData();
-        formData.append("name", data.name);
-        formData.append("description", data.description);
-        formData.append("price", data.price);
-        if (data.originalPrice)
-          formData.append("originalPrice", data.originalPrice);
-        formData.append("categories", selectedCategories.join(", "));
-        formData.append("stock", data.stock);
+        formData.append("name", data.name.trim());
+        formData.append("description", data.description.trim());
+        formData.append("price", parseInt(data.price));
+        if (data.originalPrice && data.originalPrice.toString().trim())
+          formData.append("originalPrice", parseInt(data.originalPrice));
+
+        // Send categories as JSON array instead of comma-separated string
+        selectedCategories.forEach((category, index) => {
+          formData.append(`categories[${index}]`, category);
+        });
+
+        formData.append("stock", parseInt(data.stock));
 
         if (data.image && data.image[0]) {
           formData.append("image", data.image[0]);
@@ -535,19 +673,101 @@ const AdminPlants = () => {
         console.error("Error response:", error.response);
         console.error("Error message:", error.message);
 
-        let errorMessage = "Failed to save plant";
-        if (error.response) {
-          // Server responded with error status
-          errorMessage =
-            error.response.data?.message ||
-            `Server error: ${error.response.status}`;
-        } else if (error.request) {
-          // Request was made but no response received
-          errorMessage =
-            "No response from server. Please check your connection.";
-        } else {
-          // Something else happened
-          errorMessage = error.message || "Unknown error occurred";
+        let errorMessage;
+
+        if (error.response && error.response.data) {
+          const responseData = error.response.data;
+
+          // Handle validation errors from server
+          if (responseData.errors && Array.isArray(responseData.errors)) {
+            errorMessage = (
+              <div>
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: "0.75rem",
+                    color: "#dc2626",
+                  }}
+                >
+                  ❌ Server Validation Errors:
+                </div>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: "1.5rem",
+                    listStyle: "disc",
+                    color: "#dc2626",
+                  }}
+                >
+                  {responseData.errors.map((err, index) => (
+                    <li
+                      key={index}
+                      style={{
+                        marginBottom: "0.5rem",
+                        lineHeight: "1.4",
+                      }}
+                    >
+                      {err}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          }
+          // Handle single error message
+          else if (responseData.message) {
+            errorMessage = (
+              <div style={{ color: "#dc2626" }}>
+                <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
+                  ❌ Server Error:
+                </div>
+                <div>{responseData.message}</div>
+              </div>
+            );
+          }
+          // Handle specific field errors
+          else if (responseData.error) {
+            errorMessage = (
+              <div style={{ color: "#dc2626" }}>
+                <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
+                  ❌ Validation Error:
+                </div>
+                <div>{responseData.error}</div>
+              </div>
+            );
+          }
+          // Default server error
+          else {
+            errorMessage = `Server responded with error: ${error.response.status} - ${error.response.statusText}`;
+          }
+        }
+        // Network or request errors
+        else if (error.request) {
+          errorMessage = (
+            <div style={{ color: "#dc2626" }}>
+              <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
+                🌐 Connection Error:
+              </div>
+              <div>
+                Unable to connect to server. Please check your internet
+                connection and try again.
+              </div>
+            </div>
+          );
+        }
+        // Other errors
+        else {
+          errorMessage = (
+            <div style={{ color: "#dc2626" }}>
+              <div style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
+                ⚠️ Unexpected Error:
+              </div>
+              <div>
+                {error.message ||
+                  "An unknown error occurred while saving the plant."}
+              </div>
+            </div>
+          );
         }
 
         setError(errorMessage);
@@ -772,31 +992,99 @@ const AdminPlants = () => {
             <div className="card-body">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-group">
-                  <label className="form-label">Plant Name *</label>
+                  <label className="form-label">
+                    Plant Name *
+                    <small
+                      style={{
+                        display: "block",
+                        fontWeight: "normal",
+                        color: "#6b7280",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      Must be 2-100 characters, letters and spaces only
+                    </small>
+                  </label>
                   <input
                     type="text"
                     className="form-input"
+                    placeholder="e.g., Monstera Deliciosa"
                     {...register("name", {
                       required: "Plant name is required",
+                      minLength: {
+                        value: 2,
+                        message:
+                          "Plant name must be at least 2 characters long",
+                      },
+                      maxLength: {
+                        value: 100,
+                        message: "Plant name cannot exceed 100 characters",
+                      },
+                      pattern: {
+                        value: /^[a-zA-Z\s'-]+$/,
+                        message:
+                          "Plant name can only contain letters, spaces, hyphens, and apostrophes",
+                      },
                     })}
                   />
                   {errors.name && (
-                    <div className="form-error">{errors.name.message}</div>
+                    <div
+                      className="form-error"
+                      style={{
+                        color: "#dc2626",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      ⚠️ {errors.name.message}
+                    </div>
                   )}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Description *</label>
+                  <label className="form-label">
+                    Description *
+                    <small
+                      style={{
+                        display: "block",
+                        fontWeight: "normal",
+                        color: "#6b7280",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      Must be 10-1000 characters. Describe the plant's features,
+                      care requirements, etc.
+                    </small>
+                  </label>
                   <textarea
                     className="form-textarea"
                     rows="4"
+                    placeholder="Describe the plant's appearance, care requirements, benefits, and any special features..."
                     {...register("description", {
                       required: "Description is required",
+                      minLength: {
+                        value: 10,
+                        message:
+                          "Description must be at least 10 characters long",
+                      },
+                      maxLength: {
+                        value: 1000,
+                        message: "Description cannot exceed 1000 characters",
+                      },
                     })}
                   />
                   {errors.description && (
-                    <div className="form-error">
-                      {errors.description.message}
+                    <div
+                      className="form-error"
+                      style={{
+                        color: "#dc2626",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      ⚠️ {errors.description.message}
                     </div>
                   )}
                 </div>
@@ -809,15 +1097,37 @@ const AdminPlants = () => {
                   }}
                 >
                   <div className="form-group">
-                    <label className="form-label">Price * (₹)</label>
+                    <label className="form-label">
+                      Price * (₹)
+                      <small
+                        style={{
+                          display: "block",
+                          fontWeight: "normal",
+                          color: "#6b7280",
+                          fontSize: "0.875rem",
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        Whole numbers only, ₹1 - ₹999,999
+                      </small>
+                    </label>
                     <input
                       type="number"
                       step="1"
-                      min="0"
+                      min="1"
+                      max="999999"
                       className="form-input"
+                      placeholder="e.g., 299"
                       {...register("price", {
                         required: "Price is required",
-                        min: 0,
+                        min: {
+                          value: 1,
+                          message: "Price must be at least ₹1",
+                        },
+                        max: {
+                          value: 999999,
+                          message: "Price cannot exceed ₹999,999",
+                        },
                         pattern: {
                           value: /^\d+$/,
                           message: "Price must be a whole number (no decimals)",
@@ -825,19 +1135,50 @@ const AdminPlants = () => {
                       })}
                     />
                     {errors.price && (
-                      <div className="form-error">{errors.price.message}</div>
+                      <div
+                        className="form-error"
+                        style={{
+                          color: "#dc2626",
+                          fontSize: "0.875rem",
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        ⚠️ {errors.price.message}
+                      </div>
                     )}
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Original Price (₹)</label>
+                    <label className="form-label">
+                      Original Price (₹)
+                      <small
+                        style={{
+                          display: "block",
+                          fontWeight: "normal",
+                          color: "#6b7280",
+                          fontSize: "0.875rem",
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        Optional, must be ≥ current price
+                      </small>
+                    </label>
                     <input
                       type="number"
                       step="1"
-                      min="0"
+                      min="1"
+                      max="999999"
                       className="form-input"
+                      placeholder="e.g., 399"
                       {...register("originalPrice", {
-                        min: 0,
+                        min: {
+                          value: 1,
+                          message: "Original price must be at least ₹1",
+                        },
+                        max: {
+                          value: 999999,
+                          message: "Original price cannot exceed ₹999,999",
+                        },
                         pattern: {
                           value: /^\d*$/,
                           message:
@@ -845,44 +1186,137 @@ const AdminPlants = () => {
                         },
                       })}
                     />
+                    {errors.originalPrice && (
+                      <div
+                        className="form-error"
+                        style={{
+                          color: "#dc2626",
+                          fontSize: "0.875rem",
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        ⚠️ {errors.originalPrice.message}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Categories *</label>
+                  <label className="form-label">
+                    Categories *
+                    <small
+                      style={{
+                        display: "block",
+                        fontWeight: "normal",
+                        color: "#6b7280",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      Select 1-5 categories that best describe this plant
+                    </small>
+                  </label>
                   <CategorySelector
                     selectedCategories={selectedCategories}
                     onChange={setSelectedCategories}
-                    error={error && selectedCategories.length === 0}
+                    error={selectedCategories.length === 0}
                   />
-                  {error && selectedCategories.length === 0 && (
-                    <div className="form-error">
-                      At least one category is required
+                  {selectedCategories.length === 0 && (
+                    <div
+                      className="form-error"
+                      style={{
+                        color: "#dc2626",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      ⚠️ At least one category is required
+                    </div>
+                  )}
+                  {selectedCategories.length > 5 && (
+                    <div
+                      className="form-error"
+                      style={{
+                        color: "#dc2626",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      ⚠️ Cannot select more than 5 categories
                     </div>
                   )}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Stock Quantity *</label>
+                  <label className="form-label">
+                    Stock Quantity *
+                    <small
+                      style={{
+                        display: "block",
+                        fontWeight: "normal",
+                        color: "#6b7280",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      Available units (0 - 10,000). Set to 0 if out of stock.
+                    </small>
+                  </label>
                   <input
                     type="number"
                     min="0"
+                    max="10000"
+                    step="1"
                     className="form-input"
+                    placeholder="e.g., 50"
                     {...register("stock", {
                       required: "Stock quantity is required",
-                      min: 0,
+                      min: {
+                        value: 0,
+                        message: "Stock cannot be negative",
+                      },
+                      max: {
+                        value: 10000,
+                        message: "Stock cannot exceed 10,000 units",
+                      },
+                      pattern: {
+                        value: /^\d+$/,
+                        message: "Stock must be a whole number",
+                      },
                     })}
                   />
                   {errors.stock && (
-                    <div className="form-error">{errors.stock.message}</div>
+                    <div
+                      className="form-error"
+                      style={{
+                        color: "#dc2626",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      ⚠️ {errors.stock.message}
+                    </div>
                   )}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Plant Image</label>
+                  <label className="form-label">
+                    Plant Image
+                    <small
+                      style={{
+                        display: "block",
+                        fontWeight: "normal",
+                        color: "#6b7280",
+                        fontSize: "0.875rem",
+                        marginTop: "0.25rem",
+                      }}
+                    >
+                      Optional. JPEG, PNG, or WebP format. Max size: 5MB.
+                    </small>
+                  </label>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
                     className="form-input"
                     {...register("image")}
                   />

@@ -156,18 +156,37 @@ router.get('/:id', getPlantById);
 // @desc Create new plant (Admin only)
 // @access Private/Admin
 const createPlant = asyncHandler(async (req, res) => {
-  const { name, description, price, originalPrice, categories, stock } = req.body;
+  console.log('📝 Creating plant with data:', req.body);
+  console.log('📝 File received:', req.file ? 'Yes' : 'No');
+  
+  const { name, description, price, originalPrice, stock } = req.body;
 
   // Validate required fields
   const validation = ValidationUtils.validatePlantData(req.body);
   if (!validation.isValid) {
+    console.log('❌ Validation failed:', validation.errors);
     return ResponseUtils.validationError(res, validation.errors);
   }
 
-  // Parse categories
-  const parsedCategories = categories 
-    ? (Array.isArray(categories) ? categories : categories.split(',').map(cat => cat.trim()).filter(Boolean))
-    : [];
+  // Parse categories from FormData
+  let parsedCategories = [];
+  
+  if (req.body.categories) {
+    if (Array.isArray(req.body.categories)) {
+      parsedCategories = req.body.categories;
+    } else if (typeof req.body.categories === 'string') {
+      parsedCategories = req.body.categories.split(',').map(cat => cat.trim()).filter(Boolean);
+    }
+  }
+  
+  // Handle categories sent as separate form fields (categories[0], categories[1], etc.)
+  Object.keys(req.body).forEach(key => {
+    if (key.startsWith('categories[') && req.body[key]) {
+      parsedCategories.push(req.body[key].trim());
+    }
+  });
+
+  console.log('📝 Parsed categories:', parsedCategories);
 
   const plantData = {
     name: name.trim(),
@@ -179,6 +198,8 @@ const createPlant = asyncHandler(async (req, res) => {
     rating: 0,
     reviewCount: 0
   };
+
+  console.log('📝 Final plant data:', plantData);
 
   if (req.file) {
     plantData.image = req.file.path;

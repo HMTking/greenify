@@ -397,8 +397,22 @@ class ValidationUtils {
       errors.push(stockValidation.message);
     }
 
-    // Validate categories
-    if (!categories || (Array.isArray(categories) && categories.length === 0)) {
+    // Validate categories - check both direct categories and FormData categories
+    let hasCategories = false;
+    
+    if (categories && Array.isArray(categories) && categories.length > 0) {
+      hasCategories = true;
+    } else if (categories && typeof categories === 'string' && categories.trim()) {
+      hasCategories = true;
+    } else {
+      // Check for FormData categories (categories[0], categories[1], etc.)
+      const categoryKeys = Object.keys(plantData).filter(key => key.startsWith('categories['));
+      if (categoryKeys.length > 0) {
+        hasCategories = true;
+      }
+    }
+    
+    if (!hasCategories) {
       errors.push('At least one category must be selected');
     }
 

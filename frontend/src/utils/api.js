@@ -7,7 +7,9 @@ import { STORAGE_KEYS, ERROR_MESSAGES, HTTP_STATUS } from './constants';
  * API Configuration
  */
 const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 
+           import.meta.env.VITE_API_URL_PRODUCTION || 
+           'http://localhost:5000/api',
   timeout: 30000,
   withCredentials: true,
 };
