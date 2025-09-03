@@ -180,7 +180,7 @@ export const useForm = (initialValues = {}, validationRules = {}) => {
   /**
    * Set multiple field values
    */
-  const setValues = useCallback((newValues) => {
+  const setMultipleValues = useCallback((newValues) => {
     setValues(prev => ({
       ...prev,
       ...newValues
@@ -234,7 +234,7 @@ export const useForm = (initialValues = {}, validationRules = {}) => {
     validateForm,
     reset,
     setValue,
-    setValues,
+    setMultipleValues,
     clearError,
     clearErrors,
     clearMessages,
