@@ -6,7 +6,7 @@ const Plant = require('../models/Plant');
 const { auth, admin } = require('../middleware/auth');
 const { storage } = require('../config/cloudinary');
 const { ResponseUtils } = require('../utils/helpers');
-const { ValidationUtils } = require('../utils/validation');
+const ValidationUtils = require('../utils/validation');
 const { HTTP_STATUS, VALIDATION_LIMITS } = require('../utils/constants');
 
 const router = express.Router();

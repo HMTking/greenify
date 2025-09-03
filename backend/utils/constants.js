@@ -38,18 +38,12 @@ const PAYMENT_METHODS = {
 // Plant Categories
 // Plant categories enum for validation
 const PLANT_CATEGORIES = [
-  'Indoor Plants',
-  'Outdoor Plants', 
-  'Succulents',
-  'Air Purifying',
-  'Low Light',
-  'Pet Safe',
   'Flowering',
-  'Foliage',
-  'Herbs',
-  'Vegetables',
-  'Trees',
-  'Cacti'
+  'Herbs', 
+  'Indoor',
+  'Outdoor',
+  'Succulents',
+  'Trees'
 ];
 
 // CORS configuration
