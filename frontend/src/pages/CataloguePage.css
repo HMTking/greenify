@@ -647,5 +647,10 @@
   .card-actions .btn {
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
   }
 }
