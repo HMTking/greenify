@@ -1,16 +1,13 @@
-// AI Plant Care Assistant Routes
-// Handles AI-powered plant care queries using Google Gemini API
-// Supports text-only, image-only, and combined text+image prompts with conversation memory
-
 const express = require('express');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multer = require('multer');
 const router = express.Router();
 
-// Initialize Google Generative AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Configure multer for handling image uploads in memory
+const AI_TIMEOUT_MS = 30000;
+const MAX_SESSIONS = 100;
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024, files: 5 },
@@ -19,8 +16,14 @@ const upload = multer({
   }
 });
 
-// Store active chat sessions in memory (in production, use Redis or database)
 const chatSessions = new Map();
+
+function evictOldestSession() {
+  if (chatSessions.size >= MAX_SESSIONS) {
+    const oldestKey = chatSessions.keys().next().value;
+    chatSessions.delete(oldestKey);
+  }
+}
 
 // Helper function to convert buffer to generative part
 const bufferToGenerativePart = (buffer, mimeType) => ({
@@ -72,19 +75,18 @@ router.post('/message', upload.array('images', 5), async (req, res) => {
     const { message, sessionId } = req.body;
     const images = req.files;
 
-    // Validate input
     if (!message?.trim() && (!images?.length)) {
       return res.status(400).json({ error: 'Either message text or images must be provided' });
     }
 
-    // Get or create chat session
     let chatSession;
     const newSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     if (sessionId && chatSessions.has(sessionId)) {
       chatSession = chatSessions.get(sessionId);
     } else {
-      const model = genAI.getGenerativeModel({ 
+      evictOldestSession();
+      const model = genAI.getGenerativeModel({
         model: 'gemini-1.5-flash',
         systemInstruction: getSystemPrompt()
       });
@@ -95,9 +97,7 @@ router.post('/message', upload.array('images', 5), async (req, res) => {
       chatSessions.set(newSessionId, chatSession);
     }
 
-    // Prepare the prompt parts
     const prompt = [];
-    
     if (message?.trim()) prompt.push(message.trim());
     if (images?.length) {
       images.forEach(image => {
@@ -105,8 +105,15 @@ router.post('/message', upload.array('images', 5), async (req, res) => {
       });
     }
 
-    // Send message to AI
-    const result = await chatSession.sendMessage(prompt);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('AI_TIMEOUT')), AI_TIMEOUT_MS)
+    );
+
+    const result = await Promise.race([
+      chatSession.sendMessage(prompt),
+      timeoutPromise,
+    ]);
+
     const aiMessage = result.response.text();
 
     res.json({
@@ -118,24 +125,29 @@ router.post('/message', upload.array('images', 5), async (req, res) => {
 
   } catch (error) {
     console.error('AI Chat Error:', error);
-    
-    // Handle specific API errors
-    if (error.message.includes('API_KEY')) {
-      return res.status(500).json({ 
-        error: 'AI service configuration error. Please try again later.' 
-      });
-    } else if (error.message.includes('SAFETY')) {
-      return res.status(400).json({ 
-        error: 'Content not allowed. Please ensure your message and images are appropriate.' 
-      });
-    } else if (error.message.includes('QUOTA')) {
-      return res.status(503).json({ 
-        error: 'AI service temporarily unavailable. Please try again later.' 
+
+    if (error.message === 'AI_TIMEOUT') {
+      return res.status(504).json({
+        error: 'AI response timed out. Please try a shorter query.'
       });
     }
 
-    res.status(500).json({ 
-      error: 'Failed to process your request. Please try again.' 
+    if (error.message.includes('API_KEY')) {
+      return res.status(500).json({
+        error: 'AI service configuration error. Please try again later.'
+      });
+    } else if (error.message.includes('SAFETY')) {
+      return res.status(400).json({
+        error: 'Content not allowed. Please ensure your message and images are appropriate.'
+      });
+    } else if (error.message.includes('QUOTA')) {
+      return res.status(503).json({
+        error: 'AI service temporarily unavailable. Please try again later.'
+      });
+    }
+
+    res.status(500).json({
+      error: 'Failed to process your request. Please try again.'
     });
   }
 });

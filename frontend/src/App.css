@@ -10,9 +10,8 @@
 html {
   width: 100%;
   overflow-x: hidden;
-  font-size: 16px;
+  font-size: clamp(14px, 2.5vw, 16px);
   background-color: #f8fafc;
-  /* Improve text rendering on mobile */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
@@ -567,9 +566,24 @@ input, textarea, [contenteditable="true"] {
 
 /* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  /* Improve rendering on high DPI screens */
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* CLS Prevention: Image containers */
+.plant-card-image,
+.product-image-container {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  position: relative;
+  background-color: #f0f0f0;
+}
+
+.plant-card-image img,
+.product-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

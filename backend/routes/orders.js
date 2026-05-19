@@ -1,6 +1,7 @@
 // Order management API routes for creating and tracking customer orders
 // Handles order placement, status updates, and admin order management functionality
 const express = require('express');
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Plant = require('../models/Plant');
@@ -9,43 +10,60 @@ const { auth, admin } = require('../middleware/auth');
 const router = express.Router();
 
 // @route POST /api/orders
-// @desc Create new order
+// @desc Create new order with atomic stock deduction
 // @access Private
 router.post('/', auth, async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { deliveryAddress } = req.body;
 
-    // Get user's cart
     const cart = await Cart.findOne({ userId: req.user._id })
-      .populate('items.plantId', 'name price stock');
+      .populate('items.plantId', 'name price stock')
+      .session(session);
 
     if (!cart || cart.items.length === 0) {
+      await session.abortTransaction();
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
-    // Check stock availability for all items
-    for (let item of cart.items) {
-      if (!item.plantId || item.plantId.stock < item.quantity) {
-        return res.status(400).json({ 
-          message: `Insufficient stock for ${item.plantId?.name || 'unknown plant'}` 
+    let total = 0;
+    const orderItems = [];
+
+    for (const item of cart.items) {
+      if (!item.plantId) {
+        await session.abortTransaction();
+        return res.status(400).json({ message: 'A plant in your cart is no longer available' });
+      }
+
+      const updated = await Plant.findOneAndUpdate(
+        {
+          _id: item.plantId._id,
+          stock: { $gte: item.quantity },
+          isActive: true,
+        },
+        { $inc: { stock: -item.quantity } },
+        { new: true, session }
+      );
+
+      if (!updated) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          message: `Insufficient stock for "${item.plantId.name}". Available: ${item.plantId.stock}, Requested: ${item.quantity}`
         });
       }
-    }
 
-    // Calculate total and prepare order items
-    let total = 0;
-    const orderItems = cart.items.map(item => {
       const itemTotal = item.plantId.price * item.quantity;
       total += itemTotal;
-      return {
+      orderItems.push({
         plantId: item.plantId._id,
         plantName: item.plantId.name,
         quantity: item.quantity,
         price: item.plantId.price
-      };
-    });
+      });
+    }
 
-    // Create order
     const order = new Order({
       userId: req.user._id,
       customerName: req.user.name,
@@ -56,18 +74,10 @@ router.post('/', auth, async (req, res) => {
       paymentMethod: 'COD'
     });
 
-    await order.save();
+    await order.save({ session });
+    await Cart.findOneAndDelete({ userId: req.user._id }).session(session);
 
-    // Update plant stock
-    for (let item of cart.items) {
-      await Plant.findByIdAndUpdate(
-        item.plantId._id,
-        { $inc: { stock: -item.quantity } }
-      );
-    }
-
-    // Clear user's cart
-    await Cart.findOneAndDelete({ userId: req.user._id });
+    await session.commitTransaction();
 
     res.status(201).json({
       success: true,
@@ -75,7 +85,10 @@ router.post('/', auth, async (req, res) => {
       order
     });
   } catch (error) {
+    await session.abortTransaction();
     res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 });
 
@@ -193,35 +206,40 @@ router.get('/:id', auth, async (req, res) => {
 // @desc Cancel order (Customer only - if order is pending)
 // @access Private
 router.put('/:id/cancel', auth, async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).session(session);
     if (!order) {
+      await session.abortTransaction();
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Check if user owns this order
     if (order.userId.toString() !== req.user._id.toString()) {
+      await session.abortTransaction();
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    // Check if order can be cancelled (only pending orders)
     if (order.status !== 'pending') {
-      return res.status(400).json({ 
-        message: `Cannot cancel order with status: ${order.status}` 
+      await session.abortTransaction();
+      return res.status(400).json({
+        message: `Cannot cancel order with status: ${order.status}`
       });
     }
 
-    // Update order status to cancelled
     order.status = 'cancelled';
-    await order.save();
+    await order.save({ session });
 
-    // Restore plant stock
-    for (let item of order.items) {
+    for (const item of order.items) {
       await Plant.findByIdAndUpdate(
         item.plantId,
-        { $inc: { stock: item.quantity } }
+        { $inc: { stock: item.quantity } },
+        { session }
       );
     }
+
+    await session.commitTransaction();
 
     res.json({
       success: true,
@@ -229,7 +247,10 @@ router.put('/:id/cancel', auth, async (req, res) => {
       order
     });
   } catch (error) {
+    await session.abortTransaction();
     res.status(500).json({ message: error.message });
+  } finally {
+    session.endSession();
   }
 });
 

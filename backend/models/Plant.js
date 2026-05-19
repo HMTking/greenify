@@ -275,11 +275,15 @@ plantSchema.set('toObject', { virtuals: true });
 
 // Create indexes for search and performance
 plantSchema.index({ name: 'text', description: 'text' });
-plantSchema.index({ categories: 1 }); // Index for category filtering
-plantSchema.index({ createdAt: -1 }); // Index for sorting by creation date
-plantSchema.index({ price: 1 }); // Index for price filtering
-plantSchema.index({ rating: -1 }); // Index for rating sorting
-plantSchema.index({ stock: 1 }); // Index for stock filtering
-plantSchema.index({ isActive: 1 }); // Index for active status filtering
+plantSchema.index({ categories: 1 });
+plantSchema.index({ createdAt: -1 });
+plantSchema.index({ price: 1 });
+plantSchema.index({ rating: -1 });
+plantSchema.index({ stock: 1 });
+plantSchema.index({ isActive: 1 });
+plantSchema.index({ isActive: 1, categories: 1, createdAt: -1 });
+plantSchema.index({ isActive: 1, price: 1 });
+plantSchema.index({ isActive: 1, stock: 1 });
+plantSchema.index({ isActive: 1, rating: -1 });
 
 module.exports = mongoose.model('Plant', plantSchema);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import api from "../../utils/api";
+import "./AdminPages.css";
 
 // Memoized components to prevent unnecessary re-renders
 const StatCard = ({ icon, value, label, color }) => (
@@ -122,7 +123,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Cards - using memoized component */}
-      <div className="grid grid-cols-4" style={{ marginBottom: "3rem" }}>
+      <div className="admin-stats-grid" style={{ marginBottom: "3rem" }}>
         <StatCard
           icon="🌱"
           value={stats.totalPlants}
@@ -149,9 +150,7 @@ const AdminDashboard = () => {
         />
       </div>
 
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}
-      >
+      <div className="admin-grid-2col">
         {/* Order Status Overview */}
         <div className="card">
           <div className="card-header">

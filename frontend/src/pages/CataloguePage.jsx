@@ -14,6 +14,7 @@ const CataloguePage = () => {
   const [minRating, setMinRating] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     fetchPlants();
@@ -98,8 +99,22 @@ const CataloguePage = () => {
     <div className="container catalogue-page" style={{ padding: "2rem 0" }}>
       <h1 className="page-title">Plant Catalogue</h1>
 
+      {/* Mobile Filter Toggle */}
+      <button
+        className="filter-toggle-btn"
+        onClick={() => setFiltersOpen(!filtersOpen)}
+      >
+        {filtersOpen ? "Close Filters" : "Filters"}
+      </button>
+
+      {/* Filter Overlay (mobile) */}
+      <div
+        className={`filter-overlay ${filtersOpen ? "active" : ""}`}
+        onClick={() => setFiltersOpen(false)}
+      />
+
       {/* Filters */}
-      <div className="catalogue-filters">
+      <div className={`catalogue-filters ${filtersOpen ? "open" : ""}`}>
         <div className="filter-group">
           <label htmlFor="search" className="form-label">
             Search Plants

@@ -2,6 +2,7 @@
 // Handles plant creation, updates, deletion with image upload and search functionality
 const express = require('express');
 const multer = require('multer');
+const NodeCache = require('node-cache');
 const Plant = require('../models/Plant');
 const { auth, admin } = require('../middleware/auth');
 const { storage } = require('../config/cloudinary');
@@ -10,6 +11,12 @@ const ValidationUtils = require('../utils/validation');
 const { HTTP_STATUS, VALIDATION_LIMITS } = require('../utils/constants');
 
 const router = express.Router();
+
+const plantCache = new NodeCache({ stdTTL: 60, checkperiod: 120, maxKeys: 200 });
+
+function invalidatePlantCache() {
+  plantCache.flushAll();
+}
 
 // Async handler utility function
 const asyncHandler = (fn) => (req, res, next) => {
@@ -33,15 +40,19 @@ const upload = multer({
 // @desc Get all plants with filtering and search
 // @access Public
 const getAllPlants = asyncHandler(async (req, res) => {
-  console.log('🌱 GET /api/plants called with query:', req.query);
-  
-  const { 
-    search, 
-    category, 
-    minPrice, 
-    maxPrice, 
+  const cacheKey = `plants:${JSON.stringify(req.query)}`;
+  const cached = plantCache.get(cacheKey);
+  if (cached) {
+    return ResponseUtils.success(res, HTTP_STATUS.OK, 'Plants retrieved successfully', cached);
+  }
+
+  const {
+    search,
+    category,
+    minPrice,
+    maxPrice,
     minRating,
-    inStock, 
+    inStock,
     sortBy = 'name',
     sortOrder = 'asc',
     page = 1,
@@ -80,13 +91,11 @@ const getAllPlants = asyncHandler(async (req, res) => {
   const skip = (pageNum - 1) * limitNum;
 
   const [plants, total] = await Promise.all([
-    Plant.find(query).sort(sortOptions).limit(limitNum).skip(skip),
+    Plant.find(query).sort(sortOptions).limit(limitNum).skip(skip).lean(),
     Plant.countDocuments(query)
   ]);
 
-  console.log('🌱 Found plants:', plants.length, 'Total in DB:', total);
-
-  ResponseUtils.success(res, HTTP_STATUS.OK, 'Plants retrieved successfully', {
+  const responseData = {
     plants,
     pagination: {
       currentPage: pageNum,
@@ -95,7 +104,11 @@ const getAllPlants = asyncHandler(async (req, res) => {
       hasNext: skip + limitNum < total,
       hasPrev: pageNum > 1
     }
-  });
+  };
+
+  plantCache.set(cacheKey, responseData);
+
+  ResponseUtils.success(res, HTTP_STATUS.OK, 'Plants retrieved successfully', responseData);
 });
 
 router.get('/', getAllPlants);
@@ -104,8 +117,17 @@ router.get('/', getAllPlants);
 // @desc Get all categories
 // @access Public
 const getCategories = asyncHandler(async (req, res) => {
+  const cacheKey = 'plants:categories';
+  const cached = plantCache.get(cacheKey);
+  if (cached) {
+    return ResponseUtils.success(res, HTTP_STATUS.OK, 'Categories retrieved successfully', cached);
+  }
+
   const categories = await Plant.distinct('categories', { isActive: true });
-  ResponseUtils.success(res, HTTP_STATUS.OK, 'Categories retrieved successfully', { categories });
+  const responseData = { categories };
+  plantCache.set(cacheKey, responseData, 300);
+
+  ResponseUtils.success(res, HTTP_STATUS.OK, 'Categories retrieved successfully', responseData);
 });
 
 router.get('/categories/list', getCategories);
@@ -114,20 +136,30 @@ router.get('/categories/list', getCategories);
 // @desc Get total plant count for admin dashboard
 // @access Public
 const getPlantStats = asyncHandler(async (req, res) => {
+  const cacheKey = 'plants:stats';
+  const cached = plantCache.get(cacheKey);
+  if (cached) {
+    return ResponseUtils.success(res, HTTP_STATUS.OK, 'Plant stats retrieved successfully', cached);
+  }
+
   const [totalPlants, inStockPlants, outOfStockPlants] = await Promise.all([
     Plant.countDocuments({ isActive: true }),
     Plant.countDocuments({ isActive: true, stock: { $gt: 0 } }),
     Plant.countDocuments({ isActive: true, stock: 0 })
   ]);
-  
-  ResponseUtils.success(res, HTTP_STATUS.OK, 'Plant stats retrieved successfully', {
-    stats: { 
-      totalPlants, 
-      inStockPlants, 
+
+  const responseData = {
+    stats: {
+      totalPlants,
+      inStockPlants,
       outOfStockPlants,
       stockPercentage: totalPlants > 0 ? Math.round((inStockPlants / totalPlants) * 100) : 0
     }
-  });
+  };
+
+  plantCache.set(cacheKey, responseData, 30);
+
+  ResponseUtils.success(res, HTTP_STATUS.OK, 'Plant stats retrieved successfully', responseData);
 });
 
 router.get('/stats/count', getPlantStats);
@@ -156,15 +188,11 @@ router.get('/:id', getPlantById);
 // @desc Create new plant (Admin only)
 // @access Private/Admin
 const createPlant = asyncHandler(async (req, res) => {
-  console.log('📝 Creating plant with data:', req.body);
-  console.log('📝 File received:', req.file ? 'Yes' : 'No');
-  
   const { name, description, price, originalPrice, stock } = req.body;
 
   // Validate required fields
   const validation = ValidationUtils.validatePlantData(req.body);
   if (!validation.isValid) {
-    console.log('❌ Validation failed:', validation.errors);
     return ResponseUtils.validationError(res, validation.errors);
   }
 
@@ -186,7 +214,7 @@ const createPlant = asyncHandler(async (req, res) => {
     }
   });
 
-  console.log('📝 Parsed categories:', parsedCategories);
+  console.log('Parsed categories:', parsedCategories);
 
   const plantData = {
     name: name.trim(),
@@ -199,7 +227,7 @@ const createPlant = asyncHandler(async (req, res) => {
     reviewCount: 0
   };
 
-  console.log('📝 Final plant data:', plantData);
+  console.log('Final plant data:', plantData);
 
   if (req.file) {
     plantData.image = req.file.path;
@@ -207,6 +235,8 @@ const createPlant = asyncHandler(async (req, res) => {
 
   const plant = new Plant(plantData);
   await plant.save();
+
+  invalidatePlantCache();
 
   ResponseUtils.success(res, HTTP_STATUS.CREATED, 'Plant created successfully', { plant });
 });
@@ -314,6 +344,8 @@ const updatePlant = asyncHandler(async (req, res) => {
 
   await plant.save();
 
+  invalidatePlantCache();
+
   ResponseUtils.success(res, HTTP_STATUS.OK, 'Plant updated successfully', { plant });
 });
 
@@ -336,6 +368,8 @@ const deletePlant = asyncHandler(async (req, res) => {
   // Soft delete by setting isActive to false
   plant.isActive = false;
   await plant.save();
+
+  invalidatePlantCache();
 
   ResponseUtils.success(res, HTTP_STATUS.OK, 'Plant deleted successfully');
 });
