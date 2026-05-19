@@ -1,31 +1,14 @@
 {
-  "name": "mini-plant-store",
+  "name": "greenify",
   "version": "1.0.0",
-  "description": "A comprehensive plant e-commerce platform built with MERN stack (MongoDB, Express.js, React, Node.js)",
+  "description": "Plant e-commerce platform built with MERN stack",
   "private": true,
   "scripts": {
     "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "start": "npm run start --prefix backend",
-    "build": "npm run build --prefix frontend",
-    "build:backend": "npm run build --prefix backend",
-    "clean": "npm run clean --prefix backend && npm run clean --prefix frontend",
-    "clean:node_modules": "rm -rf node_modules backend/node_modules frontend/node_modules",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare-deploy": "npm run clean:node_modules && npm run install-all && npm run build"
+    "build": "npm run build --prefix frontend"
   },
-  "keywords": [
-    "ecommerce",
-    "plants",
-    "mern-stack",
-    "mongodb",
-    "express",
-    "react",
-    "nodejs",
-    "vite"
-  ],
-  "author": "Mini Plant Store Team",
-  "license": "ISC",
   "workspaces": [
     "backend",
     "frontend"
@@ -34,15 +17,10 @@
     "concurrently": "^8.2.2"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HMTking/greenify.git"
-  },
-  "bugs": {
-    "url": "https://github.com/HMTking/greenify/issues"
-  },
-  "homepage": "https://github.com/HMTking/greenify#readme"
+  }
 }

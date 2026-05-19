@@ -1,13 +1,10 @@
-// User login page with form validation and test credentials
-// Handles user authentication and redirects based on user role
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
 import { ValidationUtils } from "../utils/validation";
-import { UIUtils, ErrorUtils } from "../utils/helpers";
+import { ErrorUtils } from "../utils/helpers";
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../utils/constants";
-import TestCredentials from "../components/TestCredentials";
 import "./AuthPages.css";
 
 const LoginPage = () => {
@@ -22,7 +19,6 @@ const LoginPage = () => {
   const [searchParams] = useSearchParams();
   const [message, setMessage] = useState("");
   const [localError, setLocalError] = useState("");
-  const [showTestCredentials, setShowTestCredentials] = useState(false);
 
   // Get redirect parameter from URL
   const redirectTo = searchParams.get("redirect") || "/";
@@ -42,7 +38,6 @@ const LoginPage = () => {
   }, [clearError]);
 
   const onSubmit = async (data) => {
-    // Clear previous messages
     setMessage("");
     setLocalError("");
 
@@ -50,9 +45,7 @@ const LoginPage = () => {
       const result = await login(data.email, data.password);
       if (result.success) {
         setMessage(SUCCESS_MESSAGES.LOGIN_SUCCESS);
-        // Remove manual navigation - let useEffect handle it when isAuthenticated changes
       } else {
-        // Set local error if login fails
         setLocalError(result.message || error || ERROR_MESSAGES.LOGIN_FAILED);
       }
     } catch (err) {
@@ -62,9 +55,20 @@ const LoginPage = () => {
     }
   };
 
-  const onFillCredentials = (email, password) => {
+  const handleDemoLogin = async (email, password) => {
+    setMessage("");
+    setLocalError("");
     setValue("email", email);
     setValue("password", password);
+
+    try {
+      const result = await login(email, password);
+      if (!result.success) {
+        setLocalError(result.message || ERROR_MESSAGES.LOGIN_FAILED);
+      }
+    } catch (err) {
+      setLocalError(ErrorUtils.getErrorMessage(err, ERROR_MESSAGES.GENERIC_ERROR));
+    }
   };
 
   return (
@@ -84,22 +88,24 @@ const LoginPage = () => {
             <div className="auth-alert auth-alert-success">{message}</div>
           )}
 
-          {/* Toggle button for test credentials */}
-          <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+          <div className="demo-credentials">
             <button
               type="button"
-              onClick={() => setShowTestCredentials(!showTestCredentials)}
-              className="btn btn-secondary"
-              style={UIUtils.getToggleButtonStyles(showTestCredentials)}
+              className="demo-btn demo-btn-user"
+              disabled={loading}
+              onClick={() => handleDemoLogin("customer@gmail.com", "PlantLover@456")}
             >
-              {showTestCredentials ? "Hide" : "Show"} Test Credentials
+              Demo User
+            </button>
+            <button
+              type="button"
+              className="demo-btn demo-btn-admin"
+              disabled={loading}
+              onClick={() => handleDemoLogin("admin@gmail.com", "AdminPlant@123")}
+            >
+              Demo Admin
             </button>
           </div>
-
-          {/* Conditional Test Credentials */}
-          {showTestCredentials && (
-            <TestCredentials onFillCredentials={onFillCredentials} />
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
             <div className="auth-form-group">

@@ -48,43 +48,27 @@ const PLANT_CATEGORIES = [
 
 // CORS configuration
 const CORS_CONFIG = {
-  // Development origins - common Vite, React, and Next.js ports
   DEVELOPMENT_ORIGINS: [
-    'http://localhost:3000',    // React default
-    'http://localhost:3001',    // React alternative
-    'http://localhost:5173',    // Vite default
-    'http://localhost:5174',    // Vite alternative
-    'http://localhost:5175',    // Vite alternative
-    'http://localhost:4173',    // Vite preview
-    'http://127.0.0.1:5173',    // Vite localhost alternative
-    'http://127.0.0.1:3000',    // React localhost alternative
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:4173',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
   ],
-  
-  // Production origins will be added from environment variables
+
   PRODUCTION_ORIGINS: [],
-  
-  // CORS options
+
   OPTIONS: {
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-    allowedHeaders: [
-      'Content-Type', 
-      'Authorization', 
-      'Accept', 
-      'Origin', 
-      'X-Requested-With', 
-      'Cache-Control',
-      'Accept-Encoding',
-      'Accept-Language',
-      'Connection',
-      'Host',
-      'Referer',
-      'User-Agent'
-    ],
-    exposedHeaders: ['Content-Range', 'X-Content-Range', 'Content-Length'],
-    optionsSuccessStatus: 200, // For legacy browser support
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    optionsSuccessStatus: 200,
     preflightContinue: false,
-    maxAge: 86400 // 24 hours cache for preflight requests
+    maxAge: 86400,
   }
 };
 

@@ -1,21 +1,17 @@
 {
-  "name": "mini-plant-store-frontend",
+  "name": "greenify-frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "Frontend React application for Mini Plant Store - A modern plant e-commerce platform",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "clean": "rm -rf node_modules dist .vite",
-    "serve": "vite preview --port 3000"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.11.0",
-    "debug": "^4.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.62.0",

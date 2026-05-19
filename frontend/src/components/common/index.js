@@ -1,5 +1,4 @@
 import React from 'react';
-import { UIUtils, ErrorUtils } from '../utils/helpers';
 import { LOADING_STATES, ANIMATION_DURATIONS } from '../utils/constants';
 
 /**

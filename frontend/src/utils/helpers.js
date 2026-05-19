@@ -55,40 +55,6 @@ export class UIUtils {
     }
     return text.substring(0, maxLength - suffix.length) + suffix;
   }
-
-  /**
-   * Generate toggle button styles
-   * @param {boolean} isActive - Whether the toggle is active
-   * @returns {object} Style object
-   */
-  static getToggleButtonStyles(isActive) {
-    return {
-      backgroundColor: isActive ? "#4f46e5" : "#6b7280",
-      color: "white",
-      padding: "0.5rem 1rem",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-      fontSize: "0.875rem",
-      transition: "all 0.2s ease",
-    };
-  }
-
-  /**
-   * Generate loading skeleton styles
-   * @param {number} height - Height in pixels
-   * @param {number} width - Width percentage
-   * @returns {object} Style object
-   */
-  static getSkeletonStyles(height = 20, width = 100) {
-    return {
-      height: `${height}px`,
-      width: `${width}%`,
-      backgroundColor: '#e2e8f0',
-      borderRadius: '4px',
-      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-    };
-  }
 }
 
 /**

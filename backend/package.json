@@ -1,24 +1,12 @@
 {
-  "name": "mini-plant-store-backend",
+  "name": "greenify-backend",
   "version": "1.0.0",
-  "description": "Backend API for Mini Plant Store - A comprehensive plant e-commerce platform",
+  "description": "Greenify API server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "clean": "rm -rf node_modules dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon server.js"
   },
-  "keywords": [
-    "plants",
-    "ecommerce",
-    "api",
-    "mongodb",
-    "express",
-    "jwt"
-  ],
-  "author": "Mini Plant Store Team",
-  "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.2",

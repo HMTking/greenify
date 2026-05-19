@@ -1,288 +1,71 @@
-# 🌱 Greenify - Plant E-commerce Platform
+# Greenify
 
-A modern, full-stack plant e-commerce platform with user authentication, shopping cart, admin panel, and AI plant care assistant. Built with the MERN stack and deployment-ready for production.
+Plant e-commerce platform built with the MERN stack.
 
-## 🚀 Live Deployment
+## Tech Stack
 
-**Status**: ✅ Production Ready
+- **Backend:** Node.js, Express, MongoDB, JWT, Cloudinary
+- **Frontend:** React 18, Vite, React Router, React Hook Form, Redux Toolkit
 
-- **Frontend**: Vercel deployment configured
-- **Backend**: Render deployment configured
-- **Database**: MongoDB Atlas compatible
-- **Storage**: Cloudinary integration
-
-The project is live here: [greenify-frontend-seven.vercel.app](https://greenify-frontend-chi.vercel.app/)
-
-## ✨ Features
-
-### Customer Features
-
-- Browse plants with search and filtering
-- View plant details with pricing and stock info
-- Shopping cart management
-- User authentication (register/login)
-- Checkout with Cash on Delivery (COD)
-- Order history and profile management
-
-### Admin Features
-
-- Admin dashboard with statistics
-- Plant management (CRUD operations)
-- Order management and status updates
-- Cloud-based image upload for plants (Cloudinary)
-
-## 🛠️ Tech Stack
-
-### Backend
-
-- **Node.js** + **Express.js** - Server and API
-- **MongoDB Atlas** - Database
-- **Mongoose** - ODM for MongoDB
-- **JWT** - Authentication
-- **Bcrypt** - Password hashing
-- **Cloudinary** - Image storage and optimization
-- **Multer** - File upload handling
-- **CORS** - Cross-Origin Resource Sharing
-
-### Frontend
-
-- **React 18** - UI Framework
-- **Vite** - Build tool and dev server
-- **React Router DOM** - Client-side routing
-- **React Hook Form** - Form handling
-- **Axios** - HTTP client
-- **Context API** - State management
-- **Regular CSS** - Styling (no framework)
-
-## 📁 Project Structure
-
-```
-mini-plant-store/
-├── backend/
-│   ├── config/           # Configuration files (Cloudinary)
-│   ├── models/           # MongoDB schemas
-│   ├── routes/           # API routes
-│   ├── middleware/       # Auth middleware
-│   ├── server.js         # Entry point
-│   └── .env              # Environment variables
-└── frontend/
-    ├── src/
-    │   ├── components/   # Reusable components
-    │   ├── pages/        # Page components
-    │   ├── context/      # React Context providers
-    │   ├── utils/        # Utility functions
-    │   └── App.jsx       # Main app component
-    ├── public/           # Static assets
-    └── vercel.json       # Vercel deployment config
-```
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- **Node.js** (v18 or higher)
-- **MongoDB Atlas** account
-- **Git**
+- Node.js >= 18
+- MongoDB Atlas account
 
 ### Installation
 
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd mini-plant-store
-   ```
-
-2. **Install all dependencies** (Recommended)
-
-   ```bash
-   npm run install-all
-   ```
-
-   **Or install manually:**
-
-   ```bash
-   # Install root dependencies
-   npm install
-
-   # Install backend dependencies
-   cd backend
-   npm install
-
-   # Install frontend dependencies
-   cd ../frontend
-   npm install
-   ```
-
-3. **Environment Setup**
-
-   ```bash
-   # Backend environment
-   cp backend/.env.example backend/.env
-   # Edit backend/.env with your MongoDB Atlas connection string
-
-   # Frontend environment
-   cp frontend/.env.example frontend/.env
-   # Edit frontend/.env with your API URL
-   ```
+```bash
+npm run install-all
+```
 
 ### Environment Variables
 
-#### Backend (.env)
-
+**backend/.env**
 ```
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/mini-plant-store
-JWT_SECRET=your_super_secret_jwt_key_here
 NODE_ENV=development
-PORT=5000
-
-# Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+PORT=10000
+MONGO_URI=<your-mongodb-uri>
+JWT_SECRET=<your-secret>
+CLOUDINARY_CLOUD_NAME=<name>
+CLOUDINARY_API_KEY=<key>
+CLOUDINARY_API_SECRET=<secret>
+PRODUCTION_ORIGINS=https://your-frontend-domain.vercel.app
 ```
 
-#### Frontend (.env)
-
+**frontend/.env**
 ```
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:10000/api
 ```
 
-### Running the Application
-
-**Option 1: Quick Start (Recommended)**
+### Run Development
 
 ```bash
-# From project root
-./start-dev.sh
+npm run dev
 ```
 
-**Option 2: Manual Start**
+- Frontend: http://localhost:5173
+- Backend: http://localhost:10000
 
-1. **Start the Backend** (Terminal 1)
+## API Endpoints
 
-   ```bash
-   cd backend
-   npm run dev
-   ```
+| Resource | Method | Path |
+|----------|--------|------|
+| Auth | POST | `/api/auth/register`, `/api/auth/login` |
+| Auth | GET/PUT | `/api/auth/me`, `/api/auth/profile` |
+| Plants | GET | `/api/plants`, `/api/plants/:id` |
+| Plants | POST/PUT/DELETE | `/api/plants`, `/api/plants/:id` (Admin) |
+| Cart | GET/POST/PUT/DELETE | `/api/cart/*` |
+| Orders | GET/POST | `/api/orders`, `/api/orders/:id` |
+| Orders | PUT | `/api/orders/:id/status` (Admin) |
+| AI Chat | POST | `/api/ai-chat` |
 
-2. **Start the Frontend** (Terminal 2)
+## Deployment
 
-   ```bash
-   cd frontend
-   npm run dev
-   ```
+- **Frontend:** Vercel (configured via `vercel.json`)
+- **Backend:** Render (configured via `render.yaml`)
 
-3. **Access the Application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000
+## Author
 
-### Testing Routes
-
-Test all API endpoints to ensure frontend-backend synchronization:
-
-```bash
-# From project root (backend must be running)
-./test-routes.sh
-```
-
-### Route Documentation
-
-For detailed frontend-backend route mappings, see [ROUTES_MAPPING.md](./ROUTES_MAPPING.md)
-
-## 📊 Database Schema
-
-### Users Collection
-
-- User authentication and profile information
-- Roles: 'customer' | 'admin'
-- Address information for delivery
-
-### Plants Collection
-
-- Plant details (name, description, price, categories)
-- Stock management
-- Image storage
-- Rating system (1-5 stars)
-
-### Orders Collection
-
-- Customer orders with items and delivery details
-- Order status tracking
-- Cash on Delivery (COD) payment method
-
-### Cart Collection
-
-- User shopping cart management
-- Item quantities and plant references
-
-## 🛣️ API Endpoints
-
-### Authentication
-
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user
-- `PUT /api/auth/profile` - Update user profile
-
-### Plants
-
-- `GET /api/plants` - Get all plants (with filtering)
-- `GET /api/plants/:id` - Get single plant
-- `POST /api/plants` - Create plant (Admin)
-- `PUT /api/plants/:id` - Update plant (Admin)
-- `DELETE /api/plants/:id` - Delete plant (Admin)
-
-### Cart
-
-- `GET /api/cart` - Get user cart
-- `POST /api/cart/add` - Add item to cart
-- `PUT /api/cart/update/:plantId` - Update cart item
-- `DELETE /api/cart/remove/:plantId` - Remove from cart
-- `DELETE /api/cart/clear` - Clear cart
-
-### Orders
-
-- `POST /api/orders` - Create new order
-- `GET /api/orders` - Get user orders
-- `GET /api/orders/:id` - Get single order
-- `GET /api/orders/admin/all` - Get all orders (Admin)
-- `PUT /api/orders/:id/status` - Update order status (Admin)
-
-## 🎨 Design Features
-
-- **Responsive Design** - Mobile-first approach
-- **Clean UI** - Simple and intuitive interface
-- **Fast Loading** - Optimized images and minimal CSS
-- **Accessibility** - Semantic HTML and keyboard navigation
-- **Modern Styling** - CSS Grid, Flexbox, and transitions
-
-## 🔒 Security Features
-
-- JWT-based authentication
-- Password hashing with bcrypt
-- Protected routes (Private/Admin)
-- Input validation and sanitization
-- CORS configuration
-
-## 👨‍💻 Developer
-
-**Datt Patel**  
-_Full Stack Developer_
-
-🎓 **Education**: Indian Institute of Information Technology, Surat  
-🏆 **Achievements**:
-
-- GATE All India Rank 387 (Computer Science)
-- GATE All India Rank 877 (Data Science & Artificial Intelligence)
-
-📧 **Contact**: [dattpatel2020@gmail.com](mailto:dattpatel2020@gmail.com)  
-💼 **LinkedIn**: [linkedin.com/in/datt-patel-a312a5256](https://www.linkedin.com/in/datt-patel-a312a5256/)  
-💻 **GitHub**: [github.com/HMTking](https://github.com/HMTking)
-
-_Built with ❤️ using the MERN stack_
-
----
-
-**Happy Gardening! 🌱**
+**Datt Patel** — [GitHub](https://github.com/HMTking) · [LinkedIn](https://www.linkedin.com/in/datt-patel-a312a5256/)
