@@ -251,46 +251,57 @@
     font-size: 2.8rem;
     margin-bottom: 1.25rem;
   }
-  
+
   .hero-content h1::after {
     width: 80px;
     height: 3px;
   }
-  
+
   .hero-content p {
     font-size: 1.15rem;
     margin-bottom: 2rem;
   }
-  
+
   .homepage .btn-primary {
     padding: 1rem 2rem;
     font-size: 1rem;
     letter-spacing: 0.5px;
   }
-  
+
   .hero {
     padding: 4rem 0;
   }
-  
+
   .features,
   .categories {
     padding: 3rem 0;
   }
-  
+
+  .features .container,
+  .categories .container {
+    padding: 0 1.5rem;
+  }
+
+  .features .grid,
+  .categories .grid {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
   .feature-card,
   .category-card {
     padding: 1.5rem;
   }
-  
+
   .feature-icon,
   .category-icon {
     font-size: 2.5rem;
   }
-  
+
   .feature-card h3 {
     font-size: 1.35rem;
   }
-  
+
   .category-card h3 {
     font-size: 1.15rem;
   }
@@ -302,48 +313,64 @@
     margin-bottom: 1rem;
     letter-spacing: -0.01em;
   }
-  
+
   .hero-content h1::after {
     width: 60px;
     height: 2px;
     bottom: -8px;
   }
-  
+
   .hero-content p {
     font-size: 1rem;
     margin-bottom: 1.5rem;
     padding: 0 1rem;
     line-height: 1.5;
   }
-  
+
   .homepage .btn-primary {
     padding: 0.9rem 1.8rem;
     font-size: 0.95rem;
     letter-spacing: 0.5px;
   }
-  
+
   .hero {
     padding: 3rem 0;
   }
-  
+
   .features,
   .categories {
     padding: 2rem 0;
   }
-  
+
+  .features .container,
+  .categories .container {
+    padding: 0 1.25rem;
+  }
+
+  .features .grid,
+  .categories .grid {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
   .feature-card,
   .category-card {
     padding: 1.25rem;
   }
-  
+
   .feature-card h3 {
     font-size: 1.25rem;
   }
-  
+
   .category-card h3 {
     font-size: 1rem;
   }
-  
+
   .feature-icon,
   .category-icon {
     font-size: 2rem;

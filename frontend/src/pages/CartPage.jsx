@@ -137,11 +137,11 @@ const CartPage = () => {
                 </div>
               </div>
 
-              <div className="actions">
-                <Link to="/checkout" className="btn primary checkout-btn">
+              <div className="cart-actions">
+                <Link to="/checkout" className="cart-action-btn cart-action-btn--checkout">
                   Proceed to Checkout
                 </Link>
-                <Link to="/catalogue" className="btn secondary continue-btn">
+                <Link to="/catalogue" className="cart-action-btn cart-action-btn--continue">
                   Continue Shopping
                 </Link>
               </div>

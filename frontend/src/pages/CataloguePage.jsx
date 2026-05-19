@@ -104,7 +104,8 @@ const CataloguePage = () => {
         className="filter-toggle-btn"
         onClick={() => setFiltersOpen(!filtersOpen)}
       >
-        {filtersOpen ? "Close Filters" : "Filters"}
+        <i className="fa-solid fa-sliders"></i>
+        {filtersOpen ? "Close" : "Filters"}
       </button>
 
       {/* Filter Overlay (mobile) */}
