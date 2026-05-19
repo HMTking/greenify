@@ -4,11 +4,59 @@
   padding: 2rem;
 }
 
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 0;
+  box-sizing: border-box;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.admin-action-btn--green {
+  background-color: #22c55e;
+}
+
+.admin-action-btn--green:hover {
+  background-color: #16a34a;
+}
+
+.admin-action-btn--gray {
+  background-color: #6b7280;
+}
+
+.admin-action-btn--gray:hover {
+  background-color: #4b5563;
+}
+
 .admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .admin-grid-2col {
@@ -38,9 +86,53 @@
     padding: 1rem;
   }
 
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .admin-header .page-title {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  .admin-header-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .admin-action-btn {
+    flex: 1;
+    height: 44px;
+    font-size: 0.85rem;
+  }
+
   .admin-stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
+  }
+
+  .admin-stats-grid .card {
+    border-radius: 10px;
+  }
+
+  .admin-stats-grid .card-body {
+    padding: 1rem;
+  }
+
+  .admin-stats-grid .card-body div:first-child {
+    font-size: 1.75rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .admin-stats-grid .card-body h3 {
+    font-size: 1.4rem !important;
+    margin: 0.25rem 0 !important;
+  }
+
+  .admin-stats-grid .card-body p {
+    font-size: 0.8rem;
   }
 
   .admin-grid-2col {
@@ -65,12 +157,38 @@
 }
 
 @media (max-width: 480px) {
+  .admin-page {
+    padding: 0.75rem;
+  }
+
+  .admin-header .page-title {
+    font-size: 1.3rem;
+  }
+
+  .admin-action-btn {
+    font-size: 0.8rem;
+    height: 40px;
+    padding: 0 1rem;
+  }
+
   .admin-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
-  .admin-page {
-    padding: 0.5rem;
+  .admin-stats-grid .card-body {
+    padding: 0.75rem;
+  }
+
+  .admin-stats-grid .card-body div:first-child {
+    font-size: 1.5rem !important;
+  }
+
+  .admin-stats-grid .card-body h3 {
+    font-size: 1.2rem !important;
+  }
+
+  .admin-stats-grid .card-body p {
+    font-size: 0.75rem;
   }
 }

@@ -100,30 +100,23 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container" style={{ padding: "2rem 0" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-        }}
-      >
+    <div className="container admin-page">
+      <div className="admin-header">
         <h1 className="page-title" style={{ marginBottom: 0 }}>
           Admin Dashboard
         </h1>
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <Link to="/admin/plants" className="btn btn-primary">
+        <div className="admin-header-actions">
+          <Link to="/admin/plants" className="admin-action-btn admin-action-btn--green">
             Manage Plants
           </Link>
-          <Link to="/admin/orders" className="btn btn-secondary">
+          <Link to="/admin/orders" className="admin-action-btn admin-action-btn--gray">
             Manage Orders
           </Link>
         </div>
       </div>
 
       {/* Stats Cards - using memoized component */}
-      <div className="admin-stats-grid" style={{ marginBottom: "3rem" }}>
+      <div className="admin-stats-grid">
         <StatCard
           icon="🌱"
           value={stats.totalPlants}
